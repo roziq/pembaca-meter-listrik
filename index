@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencatat Stand Meter Listrik PWA - SMKN 1 Purbalingga</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Aplikasi Pencatat Stand Meter Listrik Panel Depan dan Belakang dengan AI OCR Vision & Google Sheets Backend">
+    <link rel="manifest" href="data:application/manifest+json,{
+        &quot;name&quot;: &quot;Stand Meter PWA - SMKN 1 Purbalingga&quot;,
+        &quot;short_name&quot;: &quot;StandMeter&quot;,
+        &quot;start_url&quot;: &quot;.&quot;,
+        &quot;display&quot;: &quot;standalone&quot;,
+        &quot;background_color&quot;: &quot;#0f172a&quot;,
+        &quot;theme_color&quot;: &quot;#0f172a&quot;,
+        &quot;icons&quot;: [{
+            &quot;src&quot;: &quot;https://cdn-icons-png.flaticon.com/512/2983/2983780.png&quot;,
+            &quot;sizes&quot;: &quot;192x192&quot;,
+            &quot;type&quot;: &quot;image/png&quot;
+        }]
+    }">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+        }
+        .panel-card {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-modal {
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        /* Custom Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: #3b82f6;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12 flex flex-col justify-between">
+
+    <div>
+        <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 p-4 sticky top-0 z-40 shadow-xl">
+            <div class="max-w-5xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-gradient-to-tr from-blue-600 to-cyan-500 text-white rounded-xl shadow-lg shadow-blue-500/20">
+                        <i class="fa-solid fa-bolt text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base sm:text-lg leading-tight text-slate-100">SMK Negeri 1 Purbalingga</h1>
+                        <p class="text-[11px] sm:text-xs text-slate-400">Monitoring Stand Meter Listrik 3 Fase (Panel Depan & Belakang)</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openScriptGuideModal()" class="p-2 sm:px-3 sm:py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-lg transition text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-database"></i>
+                        <span class="hidden sm:inline">Setup GAS Database</span>
+                    </button>
+                    <button onclick="openConfigModal()" class="p-2 sm:px-3 sm:py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg transition text-xs font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-gear"></i>
+                        <span class="hidden sm:inline">Pengaturan</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-5xl mx-auto px-4 pt-4">
+            <div class="flex bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
+                <button id="tabInputBtn" onclick="switchTab('input')" class="flex-1 py-2.5 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-600/30">
+                    <i class="fa-solid fa-pen-to-square"></i> Input Stand Meter
+                </button>
+                <button id="tabHarianBtn" onclick="switchTab('harian')" class="flex-1 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-200 rounded-xl transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-calendar-day"></i> Rekap Harian
+                </button>
+                <button id="tabBulananBtn" onclick="switchTab('bulanan')" class="flex-1 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-200 rounded-xl transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-chart-column"></i> Rekap Bulanan
+                </button>
+            </div>
+        </div>
+
+        <main class="max-w-5xl mx-auto p-4 space-y-6">
+
+            <div id="apiAlert" class="bg-amber-500/10 border border-amber-500/30 text-amber-300 p-3.5 rounded-2xl text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-lg">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg shrink-0"></i>
+                    <span>Database Google Apps Script belum terhubung. Konfigurasikan URL Web App terlebih dahulu.</span>
+                </div>
+                <div class="flex items-center gap-2 self-end sm:self-auto">
+                    <button onclick="openScriptGuideModal()" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2.5 py-1 rounded-lg border border-amber-500/40 font-semibold text-[11px] transition">Ambil Kode GAS</button>
+                    <button onclick="openConfigModal()" class="bg-amber-500 text-slate-950 font-semibold px-2.5 py-1 rounded-lg text-[11px] transition">Atur URL</button>
+                </div>
+            </div>
+
+            <div id="sectionInput" class="space-y-6">
+                <!-- Dual Meter Panels Grid -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    
+                    <!-- PANEL DEPAN -->
+                    <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
+                        <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
+                            <h2 class="font-bold text-base sm:text-lg text-emerald-400 flex items-center gap-2">
+                                <i class="fa-solid fa-solar-panel"></i> Panel Meter Depan
+                            </h2>
+                            <span class="text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-full font-medium">Meter 1</span>
+                        </div>
+
+                        <!-- Image Capture Box -->
+                        <div class="relative w-full h-44 bg-slate-950/80 rounded-xl overflow-hidden border border-dashed border-slate-700/80 flex flex-col justify-center items-center group">
+                            <img id="imgDepanPreview" class="hidden w-full h-full object-cover">
+                            <div id="placeholderDepan" class="text-center p-4">
+                                <i class="fa-solid fa-camera text-3xl text-slate-600 mb-2 group-hover:text-slate-400 transition"></i>
+                                <p class="text-xs text-slate-400">Klik untuk mengambil foto panel meter depan</p>
+                            </div>
+                            <input type="file" id="fileDepan" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event, 'depan')">
+                            <button onclick="document.getElementById('fileDepan').click()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></button>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button onclick="document.getElementById('fileDepan').click()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs py-2 px-3 rounded-lg flex justify-center items-center gap-2 border border-slate-700 transition">
+                                <i class="fa-solid fa-camera"></i> Foto Meter
+                            </button>
+                            <button onclick="processAI('depan')" id="btnAnalyzeDepan" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs py-2 px-3 rounded-lg flex justify-center items-center gap-2 transition shadow-md shadow-blue-600/20 disabled:opacity-50">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Baca AI OCR
+                            </button>
+                        </div>
+
+                        <!-- Manual Numeric Inputs -->
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div>
+                                <label class="text-[11px] text-slate-400 block mb-1">Ampere R (A)</label>
+                                <input type="number" step="0.1" id="depanR" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 block mb-1">Ampere S (A)</label>
+                                <input type="number" step="0.1" id="depanS" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 block mb-1">Ampere T (A)</label>
+                                <input type="number" step="0.1" id="depanT" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 block mb-1">Voltase (V)</label>
+                                <input type="number" step="0.1" id="depanVolt" placeholder="220" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANEL BELAKANG -->
+                    <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
+                        <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
+                            <h2 class="font-bold text-base sm:text-lg text-amber-400 flex items-center gap-2">
+                                <i class="fa-solid fa-solar-panel"></i> Panel Meter Belakang
+                            </h2>
+                            <span class="text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium">Meter 2</span>
+                        </div>
+
+                        <!-- Image Capture Box -->
+                        <div class="relative w-full h-44 bg-slate-950/80 rounded-xl overflow-hidden border border-dashed border-slate-700/80 flex flex-col justify-center items-center group">
+                            <img id="imgBelakangPreview" class="hidden w-full h-full object-cover">
+                            <div id="placeholderBelakang" class="text-center p-4">
+                                <i class="fa-solid fa-camera text-3xl text-slate-600 mb-2 group-hover:text-slate-400 transition"></i>
+                                <p class="text-xs text-slate-400">Klik untuk mengambil foto panel meter belakang</p>
+                            </div>
+                            <input type="file" id="fileBelakang" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event, 'belakang')">
+                            <button onclick="document.getElementById('fileBelakang').click()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></button>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button onclick="document.getElementById('fileBelakang').click()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs py-2 px-3 rounded-lg flex justify-center items-center gap-2 border border-slate-700 transition">
+                                <i class="fa-solid fa-camera"></i> Foto Meter
+                            </button>
+                            <button onclick="processAI('belakang')" id="btnAnalyzeBelakang" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs py-2 px-3 rounded-lg flex justify-center items-center gap-2 transition shadow-md shadow-blue-600/20 disabled:opacity-50">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Baca AI OCR
+                            </button>
+                        </div>
+
+                        <!-- Manual Numeric Inputs -->
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div>
+                                <label class="text-[11px] text-slate-400 block mb-1">Ampere R (A)</label>
+                                <input type="number" step="0.1" id="belakangR" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 block mb-1">Ampere S (A)</label>
+                                <input type="number" step="0.1" id="belakangS" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 block mb-1">Ampere T (A)</label>
+                                <input type="number" step="0.1" id="belakangT" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 block mb-1">Voltase (V)</label>
+                                <input type="number" step="0.1" id="belakangVolt" placeholder="220" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-700/60 pb-3">
+                        <h2 class="font-bold text-base sm:text-lg text-blue-400 flex items-center gap-2">
+                            <i class="fa-solid fa-table-list"></i> Kalkulasi & Ringkasan Hasil
+                        </h2>
+                        <button onclick="saveToSheets()" id="btnSaveSheets" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-5 py-2.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/40">
+                            <i class="fa-solid fa-cloud-arrow-up text-sm"></i> Simpan Ke Database Google Sheets
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-800">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-900/90 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Kategori Panel</th>
+                                    <th class="p-3 text-center">R (Ampere)</th>
+                                    <th class="p-3 text-center">S (Ampere)</th>
+                                    <th class="p-3 text-center">T (Ampere)</th>
+                                    <th class="p-3 text-center">Rata-rata Ampere</th>
+                                    <th class="p-3 text-center">Voltase (V)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                                <tr>
+                                    <td class="p-3 font-sans font-semibold text-emerald-400">Meter Depan</td>
+                                    <td id="tblDepanR" class="p-3 text-center">0.0</td>
+                                    <td id="tblDepanS" class="p-3 text-center">0.0</td>
+                                    <td id="tblDepanT" class="p-3 text-center">0.0</td>
+                                    <td id="tblDepanAvg" class="p-3 text-center font-bold text-slate-300">0.0</td>
+                                    <td id="tblDepanVolt" class="p-3 text-center">0.0</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-sans font-semibold text-amber-400">Meter Belakang</td>
+                                    <td id="tblBelakangR" class="p-3 text-center">0.0</td>
+                                    <td id="tblBelakangS" class="p-3 text-center">0.0</td>
+                                    <td id="tblBelakangT" class="p-3 text-center">0.0</td>
+                                    <td id="tblBelakangAvg" class="p-3 text-center font-bold text-slate-300">0.0</td>
+                                    <td id="tblBelakangVolt" class="p-3 text-center">0.0</td>
+                                </tr>
+                                <tr class="bg-blue-950/40 font-bold border-t-2 border-slate-700">
+                                    <td class="p-3 font-sans text-blue-300">TOTAL / RATA2</td>
+                                    <td id="tblTotalR" class="p-3 text-center text-blue-300">0.0</td>
+                                    <td id="tblTotalS" class="p-3 text-center text-blue-300">0.0</td>
+                                    <td id="tblTotalT" class="p-3 text-center text-blue-300">0.0</td>
+                                    <td id="tblTotalAvg" class="p-3 text-center text-emerald-300">0.0</td>
+                                    <td id="tblTotalVolt" class="p-3 text-center text-blue-300">0.0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sectionHarian" class="space-y-6 hidden">
+                <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/60 pb-3">
+                        <div>
+                            <h2 class="font-bold text-base sm:text-lg text-emerald-400 flex items-center gap-2">
+                                <i class="fa-solid fa-calendar-day"></i> Rekap Pencatatan Harian
+                            </h2>
+                            <p class="text-xs text-slate-400">Riwayat pengamatan beban listrik per hari</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="filterDate" onchange="renderHarianView()" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:border-blue-500 focus:outline-none">
+                            <button onclick="fetchDataFromSheets()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2 text-xs rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-rotate"></i> Sync
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Daily Summary Stats -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Total Entry Hari Ini</span>
+                            <span id="statHarianCount" class="text-xl font-bold text-blue-400 font-mono mt-1 block">0</span>
+                        </div>
+                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Rata-rata Ampere</span>
+                            <span id="statHarianAvgAmp" class="text-xl font-bold text-emerald-400 font-mono mt-1 block">0.0 A</span>
+                        </div>
+                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Peak Ampere</span>
+                            <span id="statHarianPeakAmp" class="text-xl font-bold text-amber-400 font-mono mt-1 block">0.0 A</span>
+                        </div>
+                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Rata-rata Voltase</span>
+                            <span id="statHarianAvgVolt" class="text-xl font-bold text-cyan-400 font-mono mt-1 block">0.0 V</span>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-800">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-900/90 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Waktu</th>
+                                    <th class="p-3 text-center">Depan (R/S/T)</th>
+                                    <th class="p-3 text-center">Belakang (R/S/T)</th>
+                                    <th class="p-3 text-center">Total Avg Ampere</th>
+                                    <th class="p-3 text-center">Voltase Avg</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblHarianBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                                <tr>
+                                    <td colspan="5" class="p-4 text-center text-slate-500 font-sans">Belum ada data pencatatan untuk tanggal ini.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sectionBulanan" class="space-y-6 hidden">
+                <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/60 pb-3">
+                        <div>
+                            <h2 class="font-bold text-base sm:text-lg text-amber-400 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column"></i> Rekapitulasi Bulanan
+                            </h2>
+                            <p class="text-xs text-slate-400">Analisis tren dan rata-rata harian dalam satu bulan</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="month" id="filterMonth" onchange="renderBulananView()" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:border-blue-500 focus:outline-none">
+                            <button onclick="fetchDataFromSheets()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2 text-xs rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-rotate"></i> Sync
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Stats -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Total Hari Tercatat</span>
+                            <span id="statBulanDays" class="text-xl font-bold text-blue-400 font-mono mt-1 block">0 Hari</span>
+                        </div>
+                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Rata-rata Ampere</span>
+                            <span id="statBulanAvgAmp" class="text-xl font-bold text-emerald-400 font-mono mt-1 block">0.0 A</span>
+                        </div>
+                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Beban Peak Bulan Ini</span>
+                            <span id="statBulanPeakAmp" class="text-xl font-bold text-rose-400 font-mono mt-1 block">0.0 A</span>
+                        </div>
+                        <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
+                            <span class="text-[10px] text-slate-400 uppercase font-semibold block">Stabilitas Voltase</span>
+                            <span id="statBulanVolt" class="text-xl font-bold text-cyan-400 font-mono mt-1 block">0.0 V</span>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-800">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-900/90 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Tanggal</th>
+                                    <th class="p-3 text-center">Jumlah Catatan</th>
+                                    <th class="p-3 text-center">Rata2 Meter Depan</th>
+                                    <th class="p-3 text-center">Rata2 Meter Belakang</th>
+                                    <th class="p-3 text-center">Total Avg Ampere</th>
+                                    <th class="p-3 text-center">Rata2 Voltase</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblBulananBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                                <tr>
+                                    <td colspan="6" class="p-4 text-center text-slate-500 font-sans">Belum ada data rekapitulasi untuk bulan ini.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer class="mt-12 border-t border-slate-800/80 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <p class="font-medium text-slate-400">
+                <i class="fa-solid fa-school text-blue-400 mr-1.5"></i> SMK Negeri 1 Purbalingga
+            </p>
+            <p class="text-slate-500">
+                Sistem Monitoring Stand Meter Listrik &copy; 2026
+            </p>
+        </div>
+    </footer>
+
+    <div id="configModal" class="fixed inset-0 glass-modal z-50 flex justify-center items-center hidden p-4">
+        <div class="panel-card w-full max-w-lg p-6 rounded-2xl space-y-5 border border-slate-700 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-100 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-blue-400"></i> Pengaturan Konfigurasi Aplikasi
+                </h3>
+                <button onclick="closeConfigModal()" class="text-slate-400 hover:text-slate-200 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="text-slate-300 font-medium block mb-1">Gemini API Key (Untuk OCR Vision AI)</label>
+                    <input type="password" id="cfgApiKey" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:border-blue-500 focus:outline-none">
+                    <p class="text-[11px] text-slate-500 mt-1">Digunakan untuk menganalisis dan membaca angka meteran analog dari foto otomatis.</p>
+                </div>
+                <div>
+                    <label class="text-slate-300 font-medium block mb-1">Google App Script Web App URL (Database Spreadsheet)</label>
+                    <input type="url" id="cfgAppsScript" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:border-blue-500 focus:outline-none">
+                    <p class="text-[11px] text-slate-500 mt-1">URL Web App hasil deploy proyek Apps Script Google Spreadsheet Anda.</p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+                <button onclick="openScriptGuideModal()" class="text-xs text-emerald-400 hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-code"></i> Ambil Kode Apps Script
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="closeConfigModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl font-medium transition">
+                        Batal
+                    </button>
+                    <button onclick="saveConfig()" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded-xl font-semibold transition shadow-md shadow-blue-600/30">
+                        Simpan Pengaturan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="scriptGuideModal" class="fixed inset-0 glass-modal z-50 flex justify-center items-center hidden p-4">
+        <div class="panel-card w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-700 shadow-2xl overflow-hidden">
+            <div class="flex justify-between items-center p-5 border-b border-slate-800 bg-slate-900/60">
+                <h3 class="font-bold text-slate-100 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-database text-emerald-400"></i> Backend Google Apps Script (`Code.gs`) & Database
+                </h3>
+                <button onclick="closeScriptGuideModal()" class="text-slate-400 hover:text-slate-200 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-5 text-xs text-slate-300 leading-relaxed">
+                <div class="bg-blue-950/40 border border-blue-800/50 p-4 rounded-xl space-y-1">
+                    <p class="font-semibold text-blue-300 text-sm"><i class="fa-solid fa-circle-info mr-1.5"></i> Otomatisasi Database Google Sheets</p>
+                    <p>Kode di bawah ini dilengkapi fungsi <code class="bg-slate-900 px-1.5 py-0.5 rounded text-emerald-400">setupDatabase()</code> dan pembuatan header otomatis saat penambahan data pertama kali!</p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-100 mb-2">Panduan Setup Cepat:</h4>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-400">
+                        <li>Buka <a href="https://sheets.google.com" target="_blank" class="text-blue-400 underline">Google Sheets</a> baru.</li>
+                        <li>Pilih menu <b>Ekstensi</b> &gt; <b>Apps Script</b>.</li>
+                        <li>Hapus seluruh kode default dan **salin kode di bawah ini**.</li>
+                        <li>Jalankan fungsi <code class="bg-slate-900 px-1 py-0.5 rounded text-amber-300">setupDatabase</code> sekali (opsional) untuk menginisialisasi sheet & header.</li>
+                        <li>Klik **Terapkan (Deploy)** &gt; **Terapkan sebagai aplikasi web**.</li>
+                        <li>Setel **Akses (Who has access)** menjadi **Siapa Saja (Anyone)**.</li>
+                        <li>Salin URL Web App dan masukkan ke menu **Pengaturan** di aplikasi ini.</li>
+                    </ol>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-200">Salin Kode Apps Script (`Code.gs`):</span>
+                        <button onclick="copyGasCode()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-copy"></i> Copy Code
+                        </button>
+                    </div>
+                    <pre id="gasCodeText" class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-300 font-mono text-[11px] overflow-x-auto whitespace-pre leading-normal">
+// ==========================================
+// BACKEND GOOGLE APPS SCRIPT - STAND METER
+// SMK NEGERI 1 PURBALINGGA
+// ==========================================
+
+// 1. FUNGSI SETUP / INITIALIZE DATABASE UTAMA
+function setupDatabase() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getActiveSheet();
+  
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow([
+      "Waktu Input", "Date Key",
+      "Depan R (A)", "Depan S (A)", "Depan T (A)", "Depan Volt (V)", "Depan Avg (A)",
+      "Belakang R (A)", "Belakang S (A)", "Belakang T (A)", "Belakang Volt (V)", "Belakang Avg (A)",
+      "Total R (A)", "Total S (A)", "Total T (A)", "Total Avg (A)", "Avg Voltase (V)"
+    ]);
+    sheet.getRange(1, 1, 1, 17).setFontWeight("bold").setBackground("#1e293b").setFontColor("#ffffff");
+  }
+  return "Database Berhasil Diinisialisasi!";
+}
+
+// 2. PENANGAN POST REQUEST (SIMPAN DATA)
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(10000);
+
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+
+    var timestamp = data.timestamp || new Date().toLocaleString('id-ID');
+    var dateKey   = data.dateKey || new Date().toISOString().split('T')[0];
+
+    var depR    = data.depan ? data.depan.R : 0;
+    var depS    = data.depan ? data.depan.S : 0;
+    var depT    = data.depan ? data.depan.T : 0;
+    var depVolt = data.depan ? data.depan.Volt : 0;
+    var depAvg  = data.depan ? data.depan.Avg : 0;
+
+    var belR    = data.belakang ? data.belakang.R : 0;
+    var belS    = data.belakang ? data.belakang.S : 0;
+    var belT    = data.belakang ? data.belakang.T : 0;
+    var belVolt = data.belakang ? data.belakang.Volt : 0;
+    var belAvg  = data.belakang ? data.belakang.Avg : 0;
+
+    var totR    = data.total ? data.total.R : 0;
+    var totS    = data.total ? data.total.S : 0;
+    var totT    = data.total ? data.total.T : 0;
+    var totAvg  = data.total ? data.total.Avg : 0;
+    var totVolt = data.total ? data.total.Volt : 0;
+
+    if (sheet.getLastRow() === 0) {
+      setupDatabase();
+    }
+
+    sheet.appendRow([
+      timestamp, dateKey,
+      depR, depS, depT, depVolt, depAvg,
+      belR, belS, belT, belVolt, belAvg,
+      totR, totS, totT, totAvg, totVolt
+    ]);
+
+    return ContentService.createTextOutput(JSON.stringify({ "result": "success" }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ "result": "error", "error": err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// 3. PENANGAN GET REQUEST (TARIK DATA DARI SHEETS)
+function doGet(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var rows = sheet.getDataRange().getValues();
+
+    if (rows.length <= 1) {
+      return ContentService.createTextOutput(JSON.stringify([]))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var result = [];
+
+    for (var i = 1; i < rows.length; i++) {
+      var row = rows[i];
+      result.push({
+        timestamp: row[0],
+        dateKey: row[1],
+        depan: { R: row[2], S: row[3], T: row[4], Volt: row[5], Avg: row[6] },
+        belakang: { R: row[7], S: row[8], T: row[9], Volt: row[10], Avg: row[11] },
+        total: { R: row[12], S: row[13], T: row[14], Avg: row[15], Volt: row[16] }
+      });
+    }
+
+    return ContentService.createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ "error": err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}</pre>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-900/80 border-t border-slate-800 flex justify-end">
+                <button onclick="closeScriptGuideModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-semibold transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="fixed inset-0 glass-modal z-50 flex justify-center items-center hidden flex-col gap-4">
+        <div class="spinner"></div>
+        <p id="loadingText" class="text-xs font-semibold text-slate-200">Menganalisis gambar dengan Gemini AI...</p>
+    </div>
+
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900/95 text-slate-200 border border-slate-700/80 px-4 py-3 rounded-2xl shadow-2xl text-xs flex items-center gap-3 transition-all duration-300 transform translate-y-20 opacity-0 z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-info text-blue-400 text-base"></i>
+        <span id="toastMsg">Pesan Notifikasi</span>
+    </div>
+
+    <script>
+        // Extended App State
+        let base64Depan = "";
+        let base64Belakang = "";
+        let historyLogs = [];
+
+        // Configuration Management
+        function loadConfig() {
+            const apiKey = localStorage.getItem('meter_gemini_key') || '';
+            const appUrl = localStorage.getItem('meter_appscript_url') || '';
+
+            document.getElementById('cfgApiKey').value = apiKey;
+            document.getElementById('cfgAppsScript').value = appUrl;
+
+            const apiAlert = document.getElementById('apiAlert');
+            if (appUrl) {
+                if (apiAlert) apiAlert.classList.add('hidden');
+            } else {
+                if (apiAlert) apiAlert.classList.remove('hidden');
+            }
+        }
+
+        function saveConfig() {
+            const apiKey = document.getElementById('cfgApiKey').value.trim();
+            const appUrl = document.getElementById('cfgAppsScript').value.trim();
+
+            localStorage.setItem('meter_gemini_key', apiKey);
+            localStorage.setItem('meter_appscript_url', appUrl);
+
+            closeConfigModal();
+            loadConfig();
+            showToast("Pengaturan berhasil disimpan!", "success");
+        }
+
+        function openConfigModal() {
+            document.getElementById('configModal').classList.remove('hidden');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.add('hidden');
+        }
+
+        function openScriptGuideModal() {
+            document.getElementById('scriptGuideModal').classList.remove('hidden');
+        }
+
+        function closeScriptGuideModal() {
+            document.getElementById('scriptGuideModal').classList.add('hidden');
+        }
+
+        function copyGasCode() {
+            const codeText = document.getElementById('gasCodeText').innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = codeText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast("Kode Google Apps Script berhasil disalin!", "success");
+        }
+
+        // Image Handling
+        function handleImageUpload(event, panel) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64String = e.target.result;
+                if (panel === 'depan') {
+                    base64Depan = base64String;
+                    const img = document.getElementById('imgDepanPreview');
+                    img.src = base64String;
+                    img.classList.remove('hidden');
+                    document.getElementById('placeholderDepan').classList.add('hidden');
+                } else if (panel === 'belakang') {
+                    base64Belakang = base64String;
+                    const img = document.getElementById('imgBelakangPreview');
+                    img.src = base64String;
+                    img.classList.remove('hidden');
+                    document.getElementById('placeholderBelakang').classList.add('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // AI OCR Reader using Gemini API
+        async function processAI(panel) {
+            const apiKey = localStorage.getItem('meter_gemini_key');
+            if (!apiKey) {
+                showToast("Silakan atur Gemini API Key di menu Pengaturan!", "error");
+                openConfigModal();
+                return;
+            }
+
+            const base64Img = panel === 'depan' ? base64Depan : base64Belakang;
+            if (!base64Img) {
+                showToast(`Silakan ambil foto meter ${panel} terlebih dahulu!`, "error");
+                return;
+            }
+
+            showLoading(`Menganalisis foto panel ${panel} dengan Gemini AI...`);
+
+            try {
+                const mimeType = base64Img.substring(base64Img.indexOf(":") + 1, base64Img.indexOf(";"));
+                const base64Data = base64Img.split(",")[1];
+
+                const promptText = panel === 'depan' 
+                    ? "Analisis foto panel listrik 3 fase depan ini. Tentukan nilai jarum analog untuk Ampere R, Ampere S, Ampere T, dan Voltase. Berikan output HANYA JSON berformat: {\"R\": number, \"S\": number, \"T\": number, \"Volt\": number}"
+                    : "Analisis foto panel listrik 3 fase belakang ini. Tentukan nilai jarum analog untuk Ampere R, Ampere S, Ampere T, dan Voltase. Berikan output HANYA JSON berformat: {\"R\": number, \"S\": number, \"T\": number, \"Volt\": number}";
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: promptText },
+                                {
+                                    inline_data: {
+                                        mime_type: mimeType,
+                                        data: base64Data
+                                    }
+                                }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+                    let responseText = data.candidates[0].content.parts[0].text.trim();
+                    responseText = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+                    
+                    const parsed = JSON.parse(responseText);
+
+                    if (panel === 'depan') {
+                        document.getElementById('depanR').value = parsed.R ?? 0;
+                        document.getElementById('depanS').value = parsed.S ?? 0;
+                        document.getElementById('depanT').value = parsed.T ?? 0;
+                        document.getElementById('depanVolt').value = parsed.Volt ?? 220;
+                    } else {
+                        document.getElementById('belakangR').value = parsed.R ?? 0;
+                        document.getElementById('belakangS').value = parsed.S ?? 0;
+                        document.getElementById('belakangT').value = parsed.T ?? 0;
+                        document.getElementById('belakangVolt').value = parsed.Volt ?? 220;
+                    }
+
+                    calculateTotals();
+                    showToast(`Hasil AI Panel ${panel.toUpperCase()} berhasil dibaca!`, "success");
+                } else {
+                    throw new Error("Format respons AI tidak valid.");
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Gagal membaca gambar dengan AI. Silakan masukkan nilai manual.", "error");
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Init App & Events
+        window.onload = function() {
+            loadConfig();
+            calculateTotals();
+            
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = today.substring(0, 7);
+            
+            document.getElementById('filterDate').value = today;
+            document.getElementById('filterMonth').value = currentMonth;
+            
+            loadLocalHistory();
+            fetchDataFromSheets();
+        };
+
+        // Tab Switching
+        function switchTab(tabName) {
+            const secInput = document.getElementById('sectionInput');
+            const secHarian = document.getElementById('sectionHarian');
+            const secBulanan = document.getElementById('sectionBulanan');
+
+            const btnInput = document.getElementById('tabInputBtn');
+            const btnHarian = document.getElementById('tabHarianBtn');
+            const btnBulanan = document.getElementById('tabBulananBtn');
+
+            [btnInput, btnHarian, btnBulanan].forEach(btn => {
+                btn.className = "flex-1 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-200 rounded-xl transition flex items-center justify-center gap-2";
+            });
+
+            secInput.classList.add('hidden');
+            secHarian.classList.add('hidden');
+            secBulanan.classList.add('hidden');
+
+            if (tabName === 'input') {
+                secInput.classList.remove('hidden');
+                btnInput.className = "flex-1 py-2.5 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-600/30";
+            } else if (tabName === 'harian') {
+                secHarian.classList.remove('hidden');
+                btnHarian.className = "flex-1 py-2.5 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow-lg shadow-emerald-600/30";
+                renderHarianView();
+            } else if (tabName === 'bulanan') {
+                secBulanan.classList.remove('hidden');
+                btnBulanan.className = "flex-1 py-2.5 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-2 bg-amber-600 text-white shadow-lg shadow-amber-600/30";
+                renderBulananView();
+            }
+        }
+
+        // Cache Management
+        function saveLocalHistory(item) {
+            historyLogs.unshift(item);
+            localStorage.setItem('meter_history_logs', JSON.stringify(historyLogs));
+        }
+
+        function loadLocalHistory() {
+            const stored = localStorage.getItem('meter_history_logs');
+            if (stored) {
+                try { historyLogs = JSON.parse(stored); } catch(e) { historyLogs = []; }
+            }
+        }
+
+        // Fetch Data from Google Sheets API
+        async function fetchDataFromSheets() {
+            const appsScriptUrl = localStorage.getItem('meter_appscript_url');
+            if (!appsScriptUrl) return;
+
+            try {
+                const res = await fetch(appsScriptUrl + "?action=get");
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) {
+                        historyLogs = data;
+                        localStorage.setItem('meter_history_logs', JSON.stringify(historyLogs));
+                        renderHarianView();
+                        renderBulananView();
+                    }
+                }
+            } catch(e) {
+                // Ignore fetch errors, fallback to local cache
+            }
+        }
+
+        // Render Views
+        function renderHarianView() {
+            const selectedDate = document.getElementById('filterDate').value;
+            const tbody = document.getElementById('tblHarianBody');
+            
+            const filtered = historyLogs.filter(log => {
+                if (!log.timestamp) return false;
+                return log.timestamp.includes(selectedDate) || log.dateKey === selectedDate;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500 font-sans">Belum ada data pencatatan untuk tanggal ${selectedDate}.</td></tr>`;
+                document.getElementById('statHarianCount').innerText = "0";
+                document.getElementById('statHarianAvgAmp').innerText = "0.0 A";
+                document.getElementById('statHarianPeakAmp').innerText = "0.0 A";
+                document.getElementById('statHarianAvgVolt').innerText = "0.0 V";
+                return;
+            }
+
+            let html = "";
+            let sumAvgAmp = 0;
+            let sumAvgVolt = 0;
+            let peakAmp = 0;
+
+            filtered.forEach(item => {
+                const dep = item.depan || {};
+                const bel = item.belakang || {};
+                const tot = item.total || {};
+
+                const totAvgAmp = tot.Avg || ((dep.Avg || 0) + (bel.Avg || 0));
+                const voltAvg = tot.Volt || (((dep.Volt || 0) + (bel.Volt || 0)) / 2);
+
+                sumAvgAmp += totAvgAmp;
+                sumAvgVolt += voltAvg;
+                if (totAvgAmp > peakAmp) peakAmp = totAvgAmp;
+
+                const timeStr = item.timestamp ? item.timestamp.split(',')[1] || item.timestamp : '-';
+
+                html += `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="p-3 font-sans font-medium text-slate-300">${timeStr}</td>
+                        <td class="p-3 text-center text-emerald-400">${dep.R || 0}/${dep.S || 0}/${dep.T || 0}</td>
+                        <td class="p-3 text-center text-amber-400">${bel.R || 0}/${bel.S || 0}/${bel.T || 0}</td>
+                        <td class="p-3 text-center font-bold text-blue-300">${totAvgAmp.toFixed(1)} A</td>
+                        <td class="p-3 text-center text-cyan-300">${voltAvg.toFixed(1)} V</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            document.getElementById('statHarianCount').innerText = filtered.length;
+            document.getElementById('statHarianAvgAmp').innerText = (sumAvgAmp / filtered.length).toFixed(1) + " A";
+            document.getElementById('statHarianPeakAmp').innerText = peakAmp.toFixed(1) + " A";
+            document.getElementById('statHarianAvgVolt').innerText = (sumAvgVolt / filtered.length).toFixed(1) + " V";
+        }
+
+        function renderBulananView() {
+            const selectedMonth = document.getElementById('filterMonth').value;
+            const tbody = document.getElementById('tblBulananBody');
+
+            const monthLogs = historyLogs.filter(log => {
+                if (!log.timestamp) return false;
+                return log.timestamp.includes(selectedMonth) || (log.dateKey && log.dateKey.startsWith(selectedMonth));
+            });
+
+            if (monthLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500 font-sans">Belum ada data rekapitulasi untuk bulan ${selectedMonth}.</td></tr>`;
+                document.getElementById('statBulanDays').innerText = "0 Hari";
+                document.getElementById('statBulanAvgAmp').innerText = "0.0 A";
+                document.getElementById('statBulanPeakAmp').innerText = "0.0 A";
+                document.getElementById('statBulanVolt').innerText = "0.0 V";
+                return;
+            }
+
+            const dayGroups = {};
+            monthLogs.forEach(item => {
+                const dayKey = item.dateKey || (item.timestamp ? item.timestamp.split(',')[0] : 'Unknown');
+                if (!dayGroups[dayKey]) dayGroups[dayKey] = [];
+                dayGroups[dayKey].push(item);
+            });
+
+            let html = "";
+            let overallAmpSum = 0;
+            let overallVoltSum = 0;
+            let monthPeakAmp = 0;
+            let daysCount = 0;
+
+            Object.keys(dayGroups).forEach(day => {
+                daysCount++;
+                const logs = dayGroups[day];
+                let dDepAvg = 0, dBelAvg = 0, dTotAvg = 0, dVoltAvg = 0;
+
+                logs.forEach(l => {
+                    const dep = l.depan || {};
+                    const bel = l.belakang || {};
+                    const tot = l.total || {};
+                    dDepAvg += dep.Avg || 0;
+                    dBelAvg += bel.Avg || 0;
+                    const totAmp = tot.Avg || ((dep.Avg || 0) + (bel.Avg || 0));
+                    dTotAvg += totAmp;
+                    dVoltAvg += tot.Volt || (((dep.Volt || 0) + (bel.Volt || 0)) / 2);
+
+                    if (totAmp > monthPeakAmp) monthPeakAmp = totAmp;
+                });
+
+                const count = logs.length;
+                const avgDep = dDepAvg / count;
+                const avgBel = dBelAvg / count;
+                const avgTot = dTotAvg / count;
+                const avgVolt = dVoltAvg / count;
+
+                overallAmpSum += avgTot;
+                overallVoltSum += avgVolt;
+
+                html += `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="p-3 font-sans font-medium text-slate-300">${day}</td>
+                        <td class="p-3 text-center text-slate-400">${count}x</td>
+                        <td class="p-3 text-center text-emerald-400">${avgDep.toFixed(1)} A</td>
+                        <td class="p-3 text-center text-amber-400">${avgBel.toFixed(1)} A</td>
+                        <td class="p-3 text-center font-bold text-blue-300">${avgTot.toFixed(1)} A</td>
+                        <td class="p-3 text-center text-cyan-300">${avgVolt.toFixed(1)} V</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            document.getElementById('statBulanDays').innerText = daysCount + " Hari";
+            document.getElementById('statBulanAvgAmp').innerText = (overallAmpSum / daysCount).toFixed(1) + " A";
+            document.getElementById('statBulanPeakAmp').innerText = monthPeakAmp.toFixed(1) + " A";
+            document.getElementById('statBulanVolt').innerText = (overallVoltSum / daysCount).toFixed(1) + " V";
+        }
+
+        // Save Data to Google Apps Script
+        async function saveToSheets() {
+            const appsScriptUrl = localStorage.getItem('meter_appscript_url');
+
+            if (!appsScriptUrl) {
+                showToast("URL Google Apps Script belum diatur!", "error");
+                openConfigModal();
+                return;
+            }
+
+            showLoading("Menyimpan data ke Google Sheets...");
+
+            const now = new Date();
+            const dateISO = now.toISOString().split('T')[0];
+
+            const payload = {
+                timestamp: now.toLocaleString('id-ID'),
+                dateKey: dateISO,
+                depan: {
+                    R: parseFloat(document.getElementById('depanR').value) || 0,
+                    S: parseFloat(document.getElementById('depanS').value) || 0,
+                    T: parseFloat(document.getElementById('depanT').value) || 0,
+                    Volt: parseFloat(document.getElementById('depanVolt').value) || 0,
+                    Avg: parseFloat(document.getElementById('tblDepanAvg').innerText) || 0
+                },
+                belakang: {
+                    R: parseFloat(document.getElementById('belakangR').value) || 0,
+                    S: parseFloat(document.getElementById('belakangS').value) || 0,
+                    T: parseFloat(document.getElementById('belakangT').value) || 0,
+                    Volt: parseFloat(document.getElementById('belakangVolt').value) || 0,
+                    Avg: parseFloat(document.getElementById('tblBelakangAvg').innerText) || 0
+                },
+                total: {
+                    R: parseFloat(document.getElementById('tblTotalR').innerText) || 0,
+                    S: parseFloat(document.getElementById('tblTotalS').innerText) || 0,
+                    T: parseFloat(document.getElementById('tblTotalT').innerText) || 0,
+                    Avg: parseFloat(document.getElementById('tblTotalAvg').innerText) || 0,
+                    Volt: parseFloat(document.getElementById('tblTotalVolt').innerText) || 0
+                }
+            };
+
+            saveLocalHistory(payload);
+
+            try {
+                await fetch(appsScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                showToast("Data berhasil dikirim ke Google Sheets!", "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Data tersimpan lokal, gagal koneksi ke Sheets", "error");
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Real-time Calculations
+        function calculateTotals() {
+            const dR = parseFloat(document.getElementById('depanR').value) || 0;
+            const dS = parseFloat(document.getElementById('depanS').value) || 0;
+            const dT = parseFloat(document.getElementById('depanT').value) || 0;
+            const dVolt = parseFloat(document.getElementById('depanVolt').value) || 0;
+            const dAvg = (dR + dS + dT) / 3;
+
+            const bR = parseFloat(document.getElementById('belakangR').value) || 0;
+            const bS = parseFloat(document.getElementById('belakangS').value) || 0;
+            const bT = parseFloat(document.getElementById('belakangT').value) || 0;
+            const bVolt = parseFloat(document.getElementById('belakangVolt').value) || 0;
+            const bAvg = (bR + bS + bT) / 3;
+
+            document.getElementById('tblDepanR').innerText = dR.toFixed(1);
+            document.getElementById('tblDepanS').innerText = dS.toFixed(1);
+            document.getElementById('tblDepanT').innerText = dT.toFixed(1);
+            document.getElementById('tblDepanAvg').innerText = dAvg.toFixed(1);
+            document.getElementById('tblDepanVolt').innerText = dVolt.toFixed(1);
+
+            document.getElementById('tblBelakangR').innerText = bR.toFixed(1);
+            document.getElementById('tblBelakangS').innerText = bS.toFixed(1);
+            document.getElementById('tblBelakangT').innerText = bT.toFixed(1);
+            document.getElementById('tblBelakangAvg').innerText = bAvg.toFixed(1);
+            document.getElementById('tblBelakangVolt').innerText = bVolt.toFixed(1);
+
+            const totR = dR + bR;
+            const totS = dS + bS;
+            const totT = dT + bT;
+            const totAvg = dAvg + bAvg;
+            const avgVolt = (dVolt + bVolt) > 0 ? ((dVolt + bVolt) / (dVolt > 0 && bVolt > 0 ? 2 : 1)) : 0;
+
+            document.getElementById('tblTotalR').innerText = totR.toFixed(1);
+            document.getElementById('tblTotalS').innerText = totS.toFixed(1);
+            document.getElementById('tblTotalT').innerText = totT.toFixed(1);
+            document.getElementById('tblTotalAvg').innerText = totAvg.toFixed(1);
+            document.getElementById('tblTotalVolt').innerText = avgVolt.toFixed(1);
+        }
+
+        // Helpers
+        function showLoading(msg) {
+            document.getElementById('loadingText').innerText = msg;
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function showToast(msg, type = "info") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = msg;
+
+            if (type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-base";
+            } else if (type === 'error') {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-rose-400 text-base";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-info text-blue-400 text-base";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
