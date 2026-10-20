@@ -11,6 +11,11 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -18,30 +23,47 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #0b0f19;
-            color: #f8fafc;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        .panel-card {
+        
+        /* Dark Mode Glass Styles */
+        .dark .panel-card {
             background: rgba(30, 41, 59, 0.65);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .glass-modal {
-            background: rgba(15, 23, 42, 0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+
+        /* Light Mode Glass Styles */
+        html:not(.dark) .panel-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
         }
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .dark ::-webkit-scrollbar-track { background: #0f172a; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        html:not(.dark) ::-webkit-scrollbar-track { background: #f1f5f9; }
+        html:not(.dark) ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        html:not(.dark) ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="min-h-screen pb-12 flex flex-col justify-between">
+<body class="min-h-screen pb-12 flex flex-col justify-between bg-slate-950 text-slate-100 dark:bg-slate-950 dark:text-slate-100 dark-theme-body">
 
     <!-- KONFIGURASI DATABASE GOOGLE APPS SCRIPT -->
     <script>
+        // Inisialisasi Tema (Pencegahan Flickering)
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+
         // ==========================================
         // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
         // ==========================================
@@ -49,29 +71,35 @@
     </script>
 
     <div>
-        <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 p-4 sticky top-0 z-40 shadow-xl">
+        <header class="bg-slate-900/90 dark:bg-slate-900/90 light:bg-white/90 bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-40 shadow-sm dark:shadow-xl transition-colors">
             <div class="max-w-3xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <div class="p-2.5 bg-gradient-to-tr from-blue-600 to-cyan-500 text-white rounded-xl shadow-lg shadow-blue-500/20">
                         <i class="fa-solid fa-bolt text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="font-bold text-base sm:text-lg leading-tight text-slate-100">SMK Negeri 1 Purbalingga</h1>
-                        <p class="text-[11px] sm:text-xs text-slate-400">Monitoring Panel Distribusi 3 Fase</p>
+                        <h1 class="font-bold text-base sm:text-lg leading-tight text-slate-800 dark:text-slate-100">SMK Negeri 1 Purbalingga</h1>
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Monitoring Panel Distribusi 3 Fase</p>
                     </div>
                 </div>
+
+                <!-- TOGGLE MODE LIGHT / DARK -->
+                <button onclick="toggleTheme()" id="themeToggleBtn" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition flex items-center gap-2 text-xs font-semibold">
+                    <i id="themeIcon" class="fa-solid fa-moon text-amber-400"></i>
+                    <span id="themeText" class="hidden sm:inline">Dark</span>
+                </button>
             </div>
         </header>
 
         <div class="max-w-3xl mx-auto px-4 pt-4">
-            <div class="flex bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
+            <div class="flex bg-slate-200/80 dark:bg-slate-900/90 p-1.5 rounded-2xl border border-slate-300/80 dark:border-slate-800/80 shadow-inner">
                 <button id="tabInputBtn" onclick="switchTab('input')" class="flex-1 py-2.5 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-600/30">
                     <i class="fa-solid fa-pen-to-square"></i> Entri Panel
                 </button>
-                <button id="tabHarianBtn" onclick="switchTab('harian')" class="flex-1 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-200 rounded-xl transition flex items-center justify-center gap-2">
+                <button id="tabHarianBtn" onclick="switchTab('harian')" class="flex-1 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 rounded-xl transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-calendar-day"></i> Rekap Harian
                 </button>
-                <button id="tabBulananBtn" onclick="switchTab('bulanan')" class="flex-1 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-200 rounded-xl transition flex items-center justify-center gap-2">
+                <button id="tabBulananBtn" onclick="switchTab('bulanan')" class="flex-1 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 rounded-xl transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-chart-column"></i> Rekap Bulanan
                 </button>
             </div>
@@ -84,12 +112,12 @@
                 
                 <!-- PILIH PANEL -->
                 <div class="panel-card p-4 rounded-2xl space-y-3 shadow-xl">
-                    <label class="text-xs font-semibold text-slate-300 block"><i class="fa-solid fa-layer-group text-blue-400 mr-1.5"></i> Pilih Panel yang Akan Dicatat:</label>
+                    <label class="text-xs font-semibold text-slate-700 dark:text-slate-300 block"><i class="fa-solid fa-layer-group text-blue-500 dark:text-blue-400 mr-1.5"></i> Pilih Panel yang Akan Dicatat:</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <button type="button" id="btnPanelDepan" onclick="selectPanel('depan')" class="py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-emerald-500/40 bg-emerald-600/20 text-emerald-400 shadow-lg shadow-emerald-900/20">
+                        <button type="button" id="btnPanelDepan" onclick="selectPanel('depan')" class="py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-emerald-500/40 bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 shadow-lg shadow-emerald-900/10">
                             <i class="fa-solid fa-solar-panel"></i> Panel Depan
                         </button>
-                        <button type="button" id="btnPanelBelakang" onclick="selectPanel('belakang')" class="py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-slate-700 bg-slate-800/60 text-slate-400">
+                        <button type="button" id="btnPanelBelakang" onclick="selectPanel('belakang')" class="py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400">
                             <i class="fa-solid fa-solar-panel"></i> Panel Belakang
                         </button>
                     </div>
@@ -97,75 +125,75 @@
 
                 <!-- FORM INPUT -->
                 <div class="panel-card p-5 rounded-2xl space-y-5 shadow-xl">
-                    <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
-                        <h2 id="formPanelTitle" class="font-bold text-base sm:text-lg text-emerald-400 flex items-center gap-2">
+                    <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700/60 pb-3">
+                        <h2 id="formPanelTitle" class="font-bold text-base sm:text-lg text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
                             <i class="fa-solid fa-bolt"></i> Entri Data: Panel Depan
                         </h2>
-                        <span id="formPanelBadge" class="text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-full font-medium">Panel 1</span>
+                        <span id="formPanelBadge" class="text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 rounded-full font-medium">Panel 1</span>
                     </div>
 
                     <!-- NAMA PETUGAS -->
-                    <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800 space-y-2">
-                        <label class="text-xs font-semibold text-slate-300"><i class="fa-solid fa-user mr-1 text-blue-400"></i> Nama Petugas Pencatat</label>
-                        <input type="text" id="inputPetugas" placeholder="Masukkan nama petugas..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-200 focus:border-blue-500 focus:outline-none">
+                    <div class="bg-slate-100/80 dark:bg-slate-900/70 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
+                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-user mr-1 text-blue-500 dark:text-blue-400"></i> Nama Petugas Pencatat</label>
+                        <input type="text" id="inputPetugas" placeholder="Masukkan nama petugas..." class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:outline-none">
                     </div>
 
                     <!-- FASA R -->
-                    <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800 space-y-2.5">
+                    <div class="bg-slate-100/80 dark:bg-slate-900/70 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <label class="text-xs font-semibold text-rose-400"><i class="fa-solid fa-circle-dot mr-1"></i> Ampere Fasa R (A)</label>
+                            <label class="text-xs font-semibold text-rose-600 dark:text-rose-400"><i class="fa-solid fa-circle-dot mr-1"></i> Ampere Fasa R (A)</label>
                             <div class="grid grid-cols-5 gap-1.5">
-                                <button type="button" onclick="setFieldValue('inputR', 10)" class="bg-slate-800 hover:bg-slate-700 text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">10</button>
-                                <button type="button" onclick="setFieldValue('inputR', 25)" class="bg-slate-800 hover:bg-slate-700 text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">25</button>
-                                <button type="button" onclick="setFieldValue('inputR', 50)" class="bg-slate-800 hover:bg-slate-700 text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">50</button>
-                                <button type="button" onclick="setFieldValue('inputR', 75)" class="bg-slate-800 hover:bg-slate-700 text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">75</button>
-                                <button type="button" onclick="setFieldValue('inputR', 100)" class="bg-slate-800 hover:bg-slate-700 text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">100</button>
+                                <button type="button" onclick="setFieldValue('inputR', 10)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-rose-600 dark:text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">10</button>
+                                <button type="button" onclick="setFieldValue('inputR', 25)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-rose-600 dark:text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">25</button>
+                                <button type="button" onclick="setFieldValue('inputR', 50)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-rose-600 dark:text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">50</button>
+                                <button type="button" onclick="setFieldValue('inputR', 75)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-rose-600 dark:text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">75</button>
+                                <button type="button" onclick="setFieldValue('inputR', 100)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-rose-600 dark:text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">100</button>
                             </div>
                         </div>
-                        <input type="number" step="0.1" id="inputR" placeholder="0.0" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                        <input type="number" step="0.1" id="inputR" placeholder="0.0" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
                     </div>
 
                     <!-- FASA S -->
-                    <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800 space-y-2.5">
+                    <div class="bg-slate-100/80 dark:bg-slate-900/70 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <label class="text-xs font-semibold text-amber-400"><i class="fa-solid fa-circle-dot mr-1"></i> Ampere Fasa S (A)</label>
+                            <label class="text-xs font-semibold text-amber-600 dark:text-amber-400"><i class="fa-solid fa-circle-dot mr-1"></i> Ampere Fasa S (A)</label>
                             <div class="grid grid-cols-5 gap-1.5">
-                                <button type="button" onclick="setFieldValue('inputS', 10)" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">10</button>
-                                <button type="button" onclick="setFieldValue('inputS', 25)" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">25</button>
-                                <button type="button" onclick="setFieldValue('inputS', 50)" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">50</button>
-                                <button type="button" onclick="setFieldValue('inputS', 75)" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">75</button>
-                                <button type="button" onclick="setFieldValue('inputS', 100)" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">100</button>
+                                <button type="button" onclick="setFieldValue('inputS', 10)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-amber-600 dark:text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">10</button>
+                                <button type="button" onclick="setFieldValue('inputS', 25)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-amber-600 dark:text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">25</button>
+                                <button type="button" onclick="setFieldValue('inputS', 50)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-amber-600 dark:text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">50</button>
+                                <button type="button" onclick="setFieldValue('inputS', 75)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-amber-600 dark:text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">75</button>
+                                <button type="button" onclick="setFieldValue('inputS', 100)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-amber-600 dark:text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">100</button>
                             </div>
                         </div>
-                        <input type="number" step="0.1" id="inputS" placeholder="0.0" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                        <input type="number" step="0.1" id="inputS" placeholder="0.0" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
                     </div>
 
                     <!-- FASA T -->
-                    <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800 space-y-2.5">
+                    <div class="bg-slate-100/80 dark:bg-slate-900/70 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <label class="text-xs font-semibold text-sky-400"><i class="fa-solid fa-circle-dot mr-1"></i> Ampere Fasa T (A)</label>
+                            <label class="text-xs font-semibold text-sky-600 dark:text-sky-400"><i class="fa-solid fa-circle-dot mr-1"></i> Ampere Fasa T (A)</label>
                             <div class="grid grid-cols-5 gap-1.5">
-                                <button type="button" onclick="setFieldValue('inputT', 10)" class="bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">10</button>
-                                <button type="button" onclick="setFieldValue('inputT', 25)" class="bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">25</button>
-                                <button type="button" onclick="setFieldValue('inputT', 50)" class="bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">50</button>
-                                <button type="button" onclick="setFieldValue('inputT', 75)" class="bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">75</button>
-                                <button type="button" onclick="setFieldValue('inputT', 100)" class="bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">100</button>
+                                <button type="button" onclick="setFieldValue('inputT', 10)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-sky-600 dark:text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">10</button>
+                                <button type="button" onclick="setFieldValue('inputT', 25)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-sky-600 dark:text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">25</button>
+                                <button type="button" onclick="setFieldValue('inputT', 50)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-sky-600 dark:text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">50</button>
+                                <button type="button" onclick="setFieldValue('inputT', 75)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-sky-600 dark:text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">75</button>
+                                <button type="button" onclick="setFieldValue('inputT', 100)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-sky-600 dark:text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">100</button>
                             </div>
                         </div>
-                        <input type="number" step="0.1" id="inputT" placeholder="0.0" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                        <input type="number" step="0.1" id="inputT" placeholder="0.0" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
                     </div>
 
                     <!-- VOLTASE -->
-                    <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800 space-y-2.5">
+                    <div class="bg-slate-100/80 dark:bg-slate-900/70 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5">
                         <div class="flex justify-between items-center">
-                            <label class="text-xs font-semibold text-cyan-300"><i class="fa-solid fa-bolt mr-1"></i> Voltase (V)</label>
-                            <button type="button" onclick="setFieldValue('inputVolt', 220)" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 px-3 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">220V</button>
+                            <label class="text-xs font-semibold text-cyan-600 dark:text-cyan-300"><i class="fa-solid fa-bolt mr-1"></i> Voltase (V)</label>
+                            <button type="button" onclick="setFieldValue('inputVolt', 220)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-cyan-600 dark:text-cyan-400 px-3 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">220V</button>
                         </div>
-                        <input type="number" step="0.1" id="inputVolt" placeholder="220" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                        <input type="number" step="0.1" id="inputVolt" placeholder="220" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
                     </div>
 
                     <!-- TOMBOL SIMPAN -->
-                    <button onclick="saveToSheets()" id="btnSave" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/40">
+                    <button onclick="saveToSheets()" id="btnSave" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/20">
                         <i class="fa-solid fa-cloud-arrow-up text-base"></i> Simpan Data Panel
                     </button>
                 </div>
@@ -174,31 +202,31 @@
             <!-- SECTION REKAP HARIAN -->
             <div id="sectionHarian" class="space-y-6 hidden">
                 <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/60 pb-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-700/60 pb-3">
                         <div>
-                            <h2 class="font-bold text-base sm:text-lg text-emerald-400 flex items-center gap-2">
+                            <h2 class="font-bold text-base sm:text-lg text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
                                 <i class="fa-solid fa-calendar-day"></i> Rekap Harian
                             </h2>
-                            <p class="text-xs text-slate-400">Riwayat pencatatan per panel dan gabungan</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Riwayat pencatatan per panel dan gabungan</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <input type="date" id="filterDate" onchange="renderHarianView()" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:border-blue-500 focus:outline-none">
-                            <button onclick="fetchDataFromSheets()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2 text-xs rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                            <input type="date" id="filterDate" onchange="renderHarianView()" class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-2 text-xs text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:outline-none">
+                            <button onclick="fetchDataFromSheets()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-rotate"></i> Sync
                             </button>
                         </div>
                     </div>
 
                     <!-- Sub-Tab Filter Panel Harian -->
-                    <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                    <div class="flex bg-slate-200/80 dark:bg-slate-950 p-1 rounded-xl border border-slate-300/80 dark:border-slate-800">
                         <button onclick="setHarianSubTab('gabungan')" id="subHarianGab" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white transition">Gabungan</button>
-                        <button onclick="setHarianSubTab('depan')" id="subHarianDep" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 transition">Panel Depan</button>
-                        <button onclick="setHarianSubTab('belakang')" id="subHarianBel" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 transition">Panel Belakang</button>
+                        <button onclick="setHarianSubTab('depan')" id="subHarianDep" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 transition">Panel Depan</button>
+                        <button onclick="setHarianSubTab('belakang')" id="subHarianBel" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 transition">Panel Belakang</button>
                     </div>
 
-                    <div class="overflow-x-auto rounded-xl border border-slate-800">
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                         <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900/90 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                            <thead class="bg-slate-100 dark:bg-slate-900/90 text-slate-600 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
                                 <tr>
                                     <th class="p-3">Waktu & Petugas</th>
                                     <th class="p-3 text-center">Panel</th>
@@ -207,7 +235,7 @@
                                     <th class="p-3 text-center">Voltase</th>
                                 </tr>
                             </thead>
-                            <tbody id="tblHarianBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                            <tbody id="tblHarianBody" class="divide-y divide-slate-200 dark:divide-slate-800/60 font-mono text-slate-800 dark:text-slate-200">
                                 <tr><td colspan="5" class="p-4 text-center text-slate-500 font-sans">Memuat data...</td></tr>
                             </tbody>
                         </table>
@@ -218,31 +246,31 @@
             <!-- SECTION REKAP BULANAN -->
             <div id="sectionBulanan" class="space-y-6 hidden">
                 <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/60 pb-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-700/60 pb-3">
                         <div>
-                            <h2 class="font-bold text-base sm:text-lg text-amber-400 flex items-center gap-2">
+                            <h2 class="font-bold text-base sm:text-lg text-amber-600 dark:text-amber-400 flex items-center gap-2">
                                 <i class="fa-solid fa-chart-column"></i> Rekap Bulanan
                             </h2>
-                            <p class="text-xs text-slate-400">Analisis rata-rata beban per panel dan gabungan</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Analisis rata-rata beban per panel dan gabungan</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <input type="month" id="filterMonth" onchange="renderBulananView()" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:border-blue-500 focus:outline-none">
-                            <button onclick="fetchDataFromSheets()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2 text-xs rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                            <input type="month" id="filterMonth" onchange="renderBulananView()" class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-2 text-xs text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:outline-none">
+                            <button onclick="fetchDataFromSheets()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-rotate"></i> Sync
                             </button>
                         </div>
                     </div>
 
                     <!-- Sub-Tab Filter Panel Bulanan -->
-                    <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                    <div class="flex bg-slate-200/80 dark:bg-slate-950 p-1 rounded-xl border border-slate-300/80 dark:border-slate-800">
                         <button onclick="setBulananSubTab('gabungan')" id="subBulanGab" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 text-white transition">Gabungan</button>
-                        <button onclick="setBulananSubTab('depan')" id="subBulanDep" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 transition">Panel Depan</button>
-                        <button onclick="setBulananSubTab('belakang')" id="subBulanBel" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 transition">Panel Belakang</button>
+                        <button onclick="setBulananSubTab('depan')" id="subBulanDep" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 transition">Panel Depan</button>
+                        <button onclick="setBulananSubTab('belakang')" id="subBulanBel" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 transition">Panel Belakang</button>
                     </div>
 
-                    <div class="overflow-x-auto rounded-xl border border-slate-800">
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                         <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900/90 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                            <thead class="bg-slate-100 dark:bg-slate-900/90 text-slate-600 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
                                 <tr>
                                     <th class="p-3">Tanggal</th>
                                     <th class="p-3 text-center">Panel</th>
@@ -252,7 +280,7 @@
                                     <th class="p-3 text-center">Avg Total</th>
                                 </tr>
                             </thead>
-                            <tbody id="tblBulananBody" class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                            <tbody id="tblBulananBody" class="divide-y divide-slate-200 dark:divide-slate-800/60 font-mono text-slate-800 dark:text-slate-200">
                                 <tr><td colspan="6" class="p-4 text-center text-slate-500 font-sans">Memuat data...</td></tr>
                             </tbody>
                         </table>
@@ -263,10 +291,10 @@
         </main>
     </div>
 
-    <footer class="mt-12 border-t border-slate-800/80 py-6 text-center text-xs text-slate-500">
+    <footer class="mt-12 border-t border-slate-200 dark:border-slate-800/80 py-6 text-center text-xs text-slate-500">
         <div class="max-w-3xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <p class="font-medium text-slate-400">
-                <i class="fa-solid fa-school text-blue-400 mr-1.5"></i> SMK Negeri 1 Purbalingga
+            <p class="font-medium text-slate-600 dark:text-slate-400">
+                <i class="fa-solid fa-school text-blue-500 dark:text-blue-400 mr-1.5"></i> SMK Negeri 1 Purbalingga
             </p>
             <p class="text-slate-500">
                 Sistem Monitoring Panel Listrik &copy; 2026
@@ -274,8 +302,8 @@
         </div>
     </footer>
 
-    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900/95 text-slate-200 border border-slate-700/80 px-4 py-3 rounded-2xl shadow-2xl text-xs flex items-center gap-3 transition-all duration-300 transform translate-y-20 opacity-0 z-50">
-        <i id="toastIcon" class="fa-solid fa-circle-info text-blue-400 text-base"></i>
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900/95 dark:bg-slate-900/95 bg-white/95 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700/80 px-4 py-3 rounded-2xl shadow-2xl text-xs flex items-center gap-3 transition-all duration-300 transform translate-y-20 opacity-0 z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-info text-blue-500 dark:text-blue-400 text-base"></i>
         <span id="toastMsg">Pesan Notifikasi</span>
     </div>
 
@@ -284,6 +312,27 @@
         let harianSubTab = 'gabungan';
         let bulananSubTab = 'gabungan';
         let historyLogs = [];
+
+        // FUNGSI TOGGLE THEME (LIGHT / DARK MODE)
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeUI(isDark);
+        }
+
+        function updateThemeUI(isDark) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            if (isDark) {
+                icon.className = "fa-solid fa-moon text-amber-400";
+                text.innerText = "Dark";
+                document.body.className = "min-h-screen pb-12 flex flex-col justify-between bg-slate-950 text-slate-100";
+            } else {
+                icon.className = "fa-solid fa-sun text-amber-500";
+                text.innerText = "Light";
+                document.body.className = "min-h-screen pb-12 flex flex-col justify-between bg-slate-100 text-slate-800";
+            }
+        }
 
         function selectPanel(panelKey) {
             currentPanel = panelKey;
@@ -294,19 +343,19 @@
             const btnSave = document.getElementById('btnSave');
 
             if (panelKey === 'depan') {
-                btnDepan.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-emerald-500/40 bg-emerald-600/20 text-emerald-400 shadow-lg shadow-emerald-900/20";
-                btnBelakang.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-slate-700 bg-slate-800/60 text-slate-400";
+                btnDepan.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-emerald-500/40 bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 shadow-lg shadow-emerald-900/10";
+                btnBelakang.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400";
                 title.innerHTML = '<i class="fa-solid fa-bolt"></i> Entri Data: Panel Depan';
                 badge.innerText = "Panel 1";
-                badge.className = "text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-full font-medium";
-                btnSave.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/40";
+                badge.className = "text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 rounded-full font-medium";
+                btnSave.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/20";
             } else {
-                btnBelakang.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-amber-500/40 bg-amber-600/20 text-amber-400 shadow-lg shadow-amber-900/20";
-                btnDepan.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-slate-700 bg-slate-800/60 text-slate-400";
+                btnBelakang.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-amber-500/40 bg-amber-600/20 text-amber-600 dark:text-amber-400 shadow-lg shadow-amber-900/10";
+                btnDepan.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400";
                 title.innerHTML = '<i class="fa-solid fa-bolt"></i> Entri Data: Panel Belakang';
                 badge.innerText = "Panel 2";
-                badge.className = "text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium";
-                btnSave.className = "w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-amber-900/40";
+                badge.className = "text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-2.5 py-0.5 rounded-full font-medium";
+                btnSave.className = "w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-amber-900/20";
             }
             
             // Reset input form saat ganti panel
@@ -321,6 +370,9 @@
         }
 
         window.onload = function() {
+            const isDark = document.documentElement.classList.contains('dark');
+            updateThemeUI(isDark);
+
             selectPanel('depan');
             const today = new Date().toISOString().split('T')[0];
             const currentMonth = today.substring(0, 7);
@@ -342,7 +394,7 @@
             const btnBulanan = document.getElementById('tabBulananBtn');
 
             [btnInput, btnHarian, btnBulanan].forEach(btn => {
-                btn.className = "flex-1 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-200 rounded-xl transition flex items-center justify-center gap-2";
+                btn.className = "flex-1 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 rounded-xl transition flex items-center justify-center gap-2";
             });
 
             secInput.classList.add('hidden');
@@ -366,7 +418,7 @@
         function setHarianSubTab(sub) {
             harianSubTab = sub;
             ['Gab', 'Dep', 'Bel'].forEach(s => {
-                document.getElementById('subHarian' + s).className = "flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 transition";
+                document.getElementById('subHarian' + s).className = "flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 transition";
             });
             const activeId = sub === 'gabungan' ? 'subHarianGab' : (sub === 'depan' ? 'subHarianDep' : 'subHarianBel');
             document.getElementById(activeId).className = "flex-1 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white transition";
@@ -376,7 +428,7 @@
         function setBulananSubTab(sub) {
             bulananSubTab = sub;
             ['Gab', 'Dep', 'Bel'].forEach(s => {
-                document.getElementById('subBulan' + s).className = "flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400 transition";
+                document.getElementById('subBulan' + s).className = "flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-600 dark:text-slate-400 transition";
             });
             const activeId = sub === 'gabungan' ? 'subBulanGab' : (sub === 'depan' ? 'subBulanDep' : 'subBulanBel');
             document.getElementById(activeId).className = "flex-1 py-1.5 text-xs font-semibold rounded-lg bg-amber-600 text-white transition";
@@ -497,19 +549,19 @@
                 const timeStr = item.timestamp ? item.timestamp.split(',')[1] || item.timestamp : '-';
                 const dateStr = item.dateKey || '';
                 const panelBadge = item.panelType === 'depan' 
-                    ? '<span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">Depan</span>'
-                    : '<span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded font-bold">Belakang</span>';
+                    ? '<span class="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded font-bold">Depan</span>'
+                    : '<span class="text-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded font-bold">Belakang</span>';
 
                 html += `
-                    <tr class="hover:bg-slate-800/40 transition">
+                    <tr class="hover:bg-slate-200/50 dark:hover:bg-slate-800/40 transition">
                         <td class="p-3 font-sans">
-                            <span class="font-semibold text-slate-200 block">${dateStr} ${timeStr}</span>
-                            <span class="text-[10px] text-slate-400"><i class="fa-solid fa-user text-blue-400 mr-1"></i>${item.petugas || '-'}</span>
+                            <span class="font-semibold text-slate-800 dark:text-slate-200 block">${dateStr} ${timeStr}</span>
+                            <span class="text-[10px] text-slate-500 dark:text-slate-400"><i class="fa-solid fa-user text-blue-500 dark:text-blue-400 mr-1"></i>${item.petugas || '-'}</span>
                         </td>
                         <td class="p-3 text-center">${panelBadge}</td>
-                        <td class="p-3 text-center text-slate-200">${item.R || 0} / ${item.S || 0} / ${item.T || 0}</td>
-                        <td class="p-3 text-center font-bold text-blue-300">${(item.Avg || 0).toFixed(1)} A</td>
-                        <td class="p-3 text-center text-cyan-300">${item.Volt || 220} V</td>
+                        <td class="p-3 text-center text-slate-800 dark:text-slate-200">${item.R || 0} / ${item.S || 0} / ${item.T || 0}</td>
+                        <td class="p-3 text-center font-bold text-blue-600 dark:text-blue-300">${(item.Avg || 0).toFixed(1)} A</td>
+                        <td class="p-3 text-center text-cyan-600 dark:text-cyan-300">${item.Volt || 220} V</td>
                     </tr>
                 `;
             });
@@ -558,17 +610,17 @@
                 });
                 const count = group.logs.length;
                 const panelBadge = group.panel === 'depan' 
-                    ? '<span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">Depan</span>'
-                    : '<span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded font-bold">Belakang</span>';
+                    ? '<span class="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded font-bold">Depan</span>'
+                    : '<span class="text-[10px] bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded font-bold">Belakang</span>';
 
                 html += `
-                    <tr class="hover:bg-slate-800/40 transition">
-                        <td class="p-3 font-sans text-slate-300">${group.date}</td>
+                    <tr class="hover:bg-slate-200/50 dark:hover:bg-slate-800/40 transition">
+                        <td class="p-3 font-sans text-slate-700 dark:text-slate-300">${group.date}</td>
                         <td class="p-3 text-center">${panelBadge}</td>
-                        <td class="p-3 text-center text-rose-400">${(sumR/count).toFixed(1)} A</td>
-                        <td class="p-3 text-center text-amber-400">${(sumS/count).toFixed(1)} A</td>
-                        <td class="p-3 text-center text-sky-400">${(sumT/count).toFixed(1)} A</td>
-                        <td class="p-3 text-center font-bold text-blue-300">${(sumAvg/count).toFixed(1)} A</td>
+                        <td class="p-3 text-center text-rose-600 dark:text-rose-400">${(sumR/count).toFixed(1)} A</td>
+                        <td class="p-3 text-center text-amber-600 dark:text-amber-400">${(sumS/count).toFixed(1)} A</td>
+                        <td class="p-3 text-center text-sky-600 dark:text-sky-400">${(sumT/count).toFixed(1)} A</td>
+                        <td class="p-3 text-center font-bold text-blue-600 dark:text-blue-300">${(sumAvg/count).toFixed(1)} A</td>
                     </tr>
                 `;
             });
@@ -581,7 +633,7 @@
             const toastIcon = document.getElementById('toastIcon');
 
             toastMsg.innerText = msg;
-            toastIcon.className = type === 'success' ? "fa-solid fa-circle-check text-emerald-400 text-base" : "fa-solid fa-triangle-exclamation text-rose-400 text-base";
+            toastIcon.className = type === 'success' ? "fa-solid fa-circle-check text-emerald-500 dark:text-emerald-400 text-base" : "fa-solid fa-triangle-exclamation text-rose-500 dark:text-rose-400 text-base";
 
             toast.classList.remove('translate-y-20', 'opacity-0');
             setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3500);
