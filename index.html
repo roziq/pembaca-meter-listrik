@@ -53,11 +53,11 @@
         html:not(.dark) ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="min-h-screen pb-12 flex flex-col justify-between bg-slate-950 text-slate-100 dark:bg-slate-950 dark:text-slate-100 dark-theme-body">
+<body class="min-h-screen pb-12 flex flex-col justify-between bg-slate-950 text-slate-100 dark:bg-slate-950 dark:text-slate-100">
 
     <!-- KONFIGURASI DATABASE GOOGLE APPS SCRIPT -->
     <script>
-        // Inisialisasi Tema (Pencegahan Flickering)
+        // Inisialisasi Tema
         if (localStorage.getItem('theme') === 'light') {
             document.documentElement.classList.remove('dark');
         } else {
@@ -71,7 +71,7 @@
     </script>
 
     <div>
-        <header class="bg-slate-900/90 dark:bg-slate-900/90 light:bg-white/90 bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-40 shadow-sm dark:shadow-xl transition-colors">
+        <header class="bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-40 shadow-sm dark:shadow-xl transition-colors">
             <div class="max-w-3xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <div class="p-2.5 bg-gradient-to-tr from-blue-600 to-cyan-500 text-white rounded-xl shadow-lg shadow-blue-500/20">
@@ -135,7 +135,13 @@
                     <!-- NAMA PETUGAS -->
                     <div class="bg-slate-100/80 dark:bg-slate-900/70 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
                         <label class="text-xs font-semibold text-slate-700 dark:text-slate-300"><i class="fa-solid fa-user mr-1 text-blue-500 dark:text-blue-400"></i> Nama Petugas Pencatat</label>
-                        <input type="text" id="inputPetugas" placeholder="Masukkan nama petugas..." class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:outline-none">
+                        <input type="text" id="inputPetugas" onchange="savePetugasName(this.value)" placeholder="Masukkan nama petugas..." class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:outline-none">
+                    </div>
+
+                    <!-- WARNING UNBALANCE ALERT (HIDDEN DEFAULT) -->
+                    <div id="unbalanceAlert" class="hidden bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2.5">
+                        <i class="fa-solid fa-triangle-exclamation text-base shrink-0"></i>
+                        <span><strong>Peringatan Beban Tidak Seimbang!</strong> Selisih arus antar-fase melebihi 25%. Harap periksa kondisi pembebanan.</span>
                     </div>
 
                     <!-- FASA R -->
@@ -150,7 +156,7 @@
                                 <button type="button" onclick="setFieldValue('inputR', 100)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-rose-600 dark:text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">100</button>
                             </div>
                         </div>
-                        <input type="number" step="0.1" id="inputR" placeholder="0.0" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
+                        <input type="number" step="0.1" id="inputR" oninput="checkUnbalance()" placeholder="0.0" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
                     </div>
 
                     <!-- FASA S -->
@@ -165,7 +171,7 @@
                                 <button type="button" onclick="setFieldValue('inputS', 100)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-amber-600 dark:text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">100</button>
                             </div>
                         </div>
-                        <input type="number" step="0.1" id="inputS" placeholder="0.0" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
+                        <input type="number" step="0.1" id="inputS" oninput="checkUnbalance()" placeholder="0.0" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
                     </div>
 
                     <!-- FASA T -->
@@ -180,7 +186,7 @@
                                 <button type="button" onclick="setFieldValue('inputT', 100)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-sky-600 dark:text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-300 dark:border-slate-700 transition">100</button>
                             </div>
                         </div>
-                        <input type="number" step="0.1" id="inputT" placeholder="0.0" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
+                        <input type="number" step="0.1" id="inputT" oninput="checkUnbalance()" placeholder="0.0" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
                     </div>
 
                     <!-- VOLTASE -->
@@ -211,6 +217,9 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <input type="date" id="filterDate" onchange="renderHarianView()" class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-2 text-xs text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:outline-none">
+                            <button onclick="exportToCSV('harian')" class="bg-emerald-600 hover:bg-emerald-500 text-white p-2 text-xs rounded-lg transition flex items-center gap-1.5 font-semibold">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </button>
                             <button onclick="fetchDataFromSheets()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-rotate"></i> Sync
                             </button>
@@ -255,6 +264,9 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <input type="month" id="filterMonth" onchange="renderBulananView()" class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-2 text-xs text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:outline-none">
+                            <button onclick="exportToCSV('bulanan')" class="bg-emerald-600 hover:bg-emerald-500 text-white p-2 text-xs rounded-lg transition flex items-center gap-1.5 font-semibold">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </button>
                             <button onclick="fetchDataFromSheets()" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5">
                                 <i class="fa-solid fa-rotate"></i> Sync
                             </button>
@@ -313,7 +325,71 @@
         let bulananSubTab = 'gabungan';
         let historyLogs = [];
 
-        // FUNGSI TOGGLE THEME (LIGHT / DARK MODE)
+        // 1. AUTO-REMEMBER NAMA PETUGAS
+        function loadSavedPetugas() {
+            const savedPetugas = localStorage.getItem('last_petugas_name');
+            if (savedPetugas) {
+                document.getElementById('inputPetugas').value = savedPetugas;
+            }
+        }
+
+        function savePetugasName(name) {
+            if (name.trim()) {
+                localStorage.setItem('last_petugas_name', name.trim());
+            }
+        }
+
+        // 2. UNBALANCE WARNING CHECKER
+        function checkUnbalance() {
+            const r = parseFloat(document.getElementById('inputR').value) || 0;
+            const s = parseFloat(document.getElementById('inputS').value) || 0;
+            const t = parseFloat(document.getElementById('inputT').value) || 0;
+
+            const alertBox = document.getElementById('unbalanceAlert');
+
+            if (r > 0 || s > 0 || t > 0) {
+                const maxVal = Math.max(r, s, t);
+                const minVal = Math.min(r, s, t);
+                
+                // Jika selisih min-max > 25% dari nilai tertinggi
+                if (maxVal > 0 && ((maxVal - minVal) / maxVal) > 0.25) {
+                    alertBox.classList.remove('hidden');
+                    return;
+                }
+            }
+            alertBox.classList.add('hidden');
+        }
+
+        // 3. EXPORT TO CSV FUNCTION
+        function exportToCSV(type) {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            let fileName = `Rekap_Panel_SMKN1Purbalingga_${type}_${new Date().toISOString().split('T')[0]}.csv`;
+
+            if (type === 'harian') {
+                csvContent += "Waktu,Tanggal,Petugas,Panel,Ampere R,Ampere S,Ampere T,Avg Ampere,Voltase\n";
+                historyLogs.forEach(item => {
+                    const timeStr = item.timestamp ? item.timestamp.split(',')[1] || item.timestamp : '-';
+                    csvContent += `"${timeStr}","${item.dateKey || ''}","${item.petugas || '-'}","${item.panelType || ''}",${item.R || 0},${item.S || 0},${item.T || 0},${(item.Avg || 0).toFixed(1)},${item.Volt || 220}\n`;
+                });
+            } else {
+                csvContent += "Tanggal,Panel,Rata-rata R,Rata-rata S,Rata-rata T,Total Avg Ampere\n";
+                // Render CSV Bulanan dari historyLogs
+                historyLogs.forEach(item => {
+                    csvContent += `"${item.dateKey || ''}","${item.panelType || ''}",${item.R || 0},${item.S || 0},${item.T || 0},${(item.Avg || 0).toFixed(1)}\n`;
+                });
+            }
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", fileName);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast("Laporan CSV berhasil diunduh!", "success");
+        }
+
         function toggleTheme() {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -363,17 +439,21 @@
             document.getElementById('inputS').value = '';
             document.getElementById('inputT').value = '';
             document.getElementById('inputVolt').value = '220';
+            checkUnbalance();
         }
 
         function setFieldValue(fieldId, value) {
             document.getElementById(fieldId).value = value;
+            checkUnbalance();
         }
 
         window.onload = function() {
             const isDark = document.documentElement.classList.contains('dark');
             updateThemeUI(isDark);
 
+            loadSavedPetugas();
             selectPanel('depan');
+            
             const today = new Date().toISOString().split('T')[0];
             const currentMonth = today.substring(0, 7);
             
@@ -472,6 +552,8 @@
                 return;
             }
 
+            savePetugasName(petugas);
+
             const r = parseFloat(document.getElementById('inputR').value) || 0;
             const s = parseFloat(document.getElementById('inputS').value) || 0;
             const t = parseFloat(document.getElementById('inputT').value) || 0;
@@ -505,10 +587,13 @@
                 });
 
                 showToast(`Data Panel ${currentPanel.toUpperCase()} berhasil disimpan!`, "success");
+                
                 // Reset form r,s,t
                 document.getElementById('inputR').value = '';
                 document.getElementById('inputS').value = '';
                 document.getElementById('inputT').value = '';
+                checkUnbalance();
+
                 renderHarianView();
                 renderBulananView();
             } catch (err) {
@@ -521,14 +606,12 @@
             const selectedDate = document.getElementById('filterDate').value;
             const tbody = document.getElementById('tblHarianBody');
             
-            // Filter data berdasarkan panel sub-tab (Gabungan, Depan, atau Belakang)
             let filtered = historyLogs.filter(log => {
                 if (harianSubTab === 'depan' && log.panelType !== 'depan') return false;
                 if (harianSubTab === 'belakang' && log.panelType !== 'belakang') return false;
                 return true;
             });
 
-            // Menyaring berdasarkan tanggal jika tersedia pencocokan
             if (selectedDate) {
                 let dateFiltered = filtered.filter(log => {
                     if (!log.timestamp) return false;
@@ -579,7 +662,7 @@
 
                 if (bulananSubTab === 'depan') return log.panelType === 'depan';
                 if (bulananSubTab === 'belakang') return log.panelType === 'belakang';
-                return true; // gabungan
+                return true;
             });
 
             if (monthLogs.length === 0) {
