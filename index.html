@@ -457,6 +457,8 @@
                 document.getElementById('inputR').value = '';
                 document.getElementById('inputS').value = '';
                 document.getElementById('inputT').value = '';
+                renderHarianView();
+                renderBulananView();
             } catch (err) {
                 console.error(err);
                 showToast("Tersimpan lokal, gagal koneksi ke Sheets", "error");
@@ -467,24 +469,33 @@
             const selectedDate = document.getElementById('filterDate').value;
             const tbody = document.getElementById('tblHarianBody');
             
+            // Filter data berdasarkan panel sub-tab (Gabungan, Depan, atau Belakang)
             let filtered = historyLogs.filter(log => {
-                if (!log.timestamp) return false;
-                let matchDate = log.timestamp.includes(selectedDate) || log.dateKey === selectedDate;
-                if (!matchDate) return false;
-
-                if (harianSubTab === 'depan') return log.panelType === 'depan';
-                if (harianSubTab === 'belakang') return log.panelType === 'belakang';
-                return true; // gabungan
+                if (harianSubTab === 'depan' && log.panelType !== 'depan') return false;
+                if (harianSubTab === 'belakang' && log.panelType !== 'belakang') return false;
+                return true;
             });
 
+            // Menyaring berdasarkan tanggal jika tersedia pencocokan
+            if (selectedDate) {
+                let dateFiltered = filtered.filter(log => {
+                    if (!log.timestamp) return false;
+                    return log.timestamp.includes(selectedDate) || log.dateKey === selectedDate;
+                });
+                if (dateFiltered.length > 0) {
+                    filtered = dateFiltered;
+                }
+            }
+
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500 font-sans">Belum ada data untuk tanggal ini.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500 font-sans">Belum ada data pencatatan.</td></tr>`;
                 return;
             }
 
             let html = "";
             filtered.forEach(item => {
                 const timeStr = item.timestamp ? item.timestamp.split(',')[1] || item.timestamp : '-';
+                const dateStr = item.dateKey || '';
                 const panelBadge = item.panelType === 'depan' 
                     ? '<span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">Depan</span>'
                     : '<span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded font-bold">Belakang</span>';
@@ -492,7 +503,7 @@
                 html += `
                     <tr class="hover:bg-slate-800/40 transition">
                         <td class="p-3 font-sans">
-                            <span class="font-semibold text-slate-200 block">${timeStr}</span>
+                            <span class="font-semibold text-slate-200 block">${dateStr} ${timeStr}</span>
                             <span class="text-[10px] text-slate-400"><i class="fa-solid fa-user text-blue-400 mr-1"></i>${item.petugas || '-'}</span>
                         </td>
                         <td class="p-3 text-center">${panelBadge}</td>
