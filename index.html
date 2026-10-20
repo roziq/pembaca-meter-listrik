@@ -7,7 +7,7 @@
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0f172a">
-    <meta name="description" content="Aplikasi Pencatat Stand Meter Listrik Panel Depan dan Belakang dengan Google Sheets Backend">
+    <meta name="description" content="Aplikasi Pencatat Stand Meter Listrik Panel Distribusi dengan Google Sheets Backend">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -62,23 +62,23 @@
 
     <div>
         <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 p-4 sticky top-0 z-40 shadow-xl">
-            <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="max-w-3xl mx-auto flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <div class="p-2.5 bg-gradient-to-tr from-blue-600 to-cyan-500 text-white rounded-xl shadow-lg shadow-blue-500/20">
                         <i class="fa-solid fa-bolt text-xl"></i>
                     </div>
                     <div>
                         <h1 class="font-bold text-base sm:text-lg leading-tight text-slate-100">SMK Negeri 1 Purbalingga</h1>
-                        <p class="text-[11px] sm:text-xs text-slate-400">Monitoring Panel Distribusi 3 Fase (Depan & Belakang)</p>
+                        <p class="text-[11px] sm:text-xs text-slate-400">Monitoring Panel Distribusi 3 Fase</p>
                     </div>
                 </div>
             </div>
         </header>
 
-        <div class="max-w-5xl mx-auto px-4 pt-4">
+        <div class="max-w-3xl mx-auto px-4 pt-4">
             <div class="flex bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800/80 shadow-inner">
                 <button id="tabInputBtn" onclick="switchTab('input')" class="flex-1 py-2.5 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-600/30">
-                    <i class="fa-solid fa-pen-to-square"></i> Input Panel Listrik
+                    <i class="fa-solid fa-pen-to-square"></i> Input Panel
                 </button>
                 <button id="tabHarianBtn" onclick="switchTab('harian')" class="flex-1 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-200 rounded-xl transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-calendar-day"></i> Rekap Harian
@@ -89,142 +89,97 @@
             </div>
         </div>
 
-        <main class="max-w-5xl mx-auto p-4 space-y-6">
+        <main class="max-w-3xl mx-auto p-4 space-y-6">
 
             <div id="sectionInput" class="space-y-6">
-                <!-- Dual Meter Panels Grid -->
-                <div class="grid md:grid-cols-2 gap-6">
-                    
-                    <!-- PANEL DEPAN -->
-                    <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
-                        <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
-                            <h2 class="font-bold text-base sm:text-lg text-emerald-400 flex items-center gap-2">
-                                <i class="fa-solid fa-solar-panel"></i> Panel Distribusi Depan
-                            </h2>
-                            <span class="text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-full font-medium">Panel 1</span>
-                        </div>
-
-                        <!-- INPUT FASA R -->
-                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
-                            <div class="flex justify-between items-center">
-                                <label class="text-xs font-semibold text-emerald-300">Ampere Fasa R (A)</label>
-                                <div class="grid grid-cols-4 gap-1">
-                                    <button type="button" onclick="setValue('depanR', 10)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
-                                    <button type="button" onclick="setValue('depanR', 25)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
-                                    <button type="button" onclick="setValue('depanR', 75)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
-                                    <button type="button" onclick="setValue('depanR', 90)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
-                                </div>
-                            </div>
-                            <input type="number" step="0.1" id="depanR" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
-                        </div>
-
-                        <!-- INPUT FASA S -->
-                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
-                            <div class="flex justify-between items-center">
-                                <label class="text-xs font-semibold text-emerald-300">Ampere Fasa S (A)</label>
-                                <div class="grid grid-cols-4 gap-1">
-                                    <button type="button" onclick="setValue('depanS', 10)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
-                                    <button type="button" onclick="setValue('depanS', 25)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
-                                    <button type="button" onclick="setValue('depanS', 75)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
-                                    <button type="button" onclick="setValue('depanS', 90)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
-                                </div>
-                            </div>
-                            <input type="number" step="0.1" id="depanS" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
-                        </div>
-
-                        <!-- INPUT FASA T -->
-                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
-                            <div class="flex justify-between items-center">
-                                <label class="text-xs font-semibold text-emerald-300">Ampere Fasa T (A)</label>
-                                <div class="grid grid-cols-4 gap-1">
-                                    <button type="button" onclick="setValue('depanT', 10)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
-                                    <button type="button" onclick="setValue('depanT', 25)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
-                                    <button type="button" onclick="setValue('depanT', 75)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
-                                    <button type="button" onclick="setValue('depanT', 90)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
-                                </div>
-                            </div>
-                            <input type="number" step="0.1" id="depanT" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
-                        </div>
-
-                        <!-- INPUT VOLTASE -->
-                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
-                            <div class="flex justify-between items-center">
-                                <label class="text-xs font-semibold text-cyan-300">Voltase (V)</label>
-                                <button type="button" onclick="setValue('depanVolt', 220)" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 px-2.5 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">220V</button>
-                            </div>
-                            <input type="number" step="0.1" id="depanVolt" placeholder="220" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
-                        </div>
+                
+                <!-- PILIH PANEL (DEPAN / BELAKANG) -->
+                <div class="panel-card p-4 rounded-2xl space-y-3 shadow-xl">
+                    <label class="text-xs font-semibold text-slate-300 block"><i class="fa-solid fa-layer-group text-blue-400 mr-1.5"></i> Pilih Panel yang Akan Diinput:</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" id="btnPanelDepan" onclick="selectPanel('depan')" class="py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-emerald-500/40 bg-emerald-600/20 text-emerald-400 shadow-lg shadow-emerald-900/20">
+                            <i class="fa-solid fa-solar-panel"></i> Panel Depan
+                        </button>
+                        <button type="button" id="btnPanelBelakang" onclick="selectPanel('belakang')" class="py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-slate-700 bg-slate-800/60 text-slate-400">
+                            <i class="fa-solid fa-solar-panel"></i> Panel Belakang
+                        </button>
                     </div>
-
-                    <!-- PANEL BELAKANG -->
-                    <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
-                        <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
-                            <h2 class="font-bold text-base sm:text-lg text-amber-400 flex items-center gap-2">
-                                <i class="fa-solid fa-solar-panel"></i> Panel Distribusi Belakang
-                            </h2>
-                            <span class="text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium">Panel 2</span>
-                        </div>
-
-                        <!-- INPUT FASA R -->
-                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
-                            <div class="flex justify-between items-center">
-                                <label class="text-xs font-semibold text-amber-300">Ampere Fasa R (A)</label>
-                                <div class="grid grid-cols-4 gap-1">
-                                    <button type="button" onclick="setValue('belakangR', 10)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
-                                    <button type="button" onclick="setValue('belakangR', 25)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
-                                    <button type="button" onclick="setValue('belakangR', 75)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
-                                    <button type="button" onclick="setValue('belakangR', 90)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
-                                </div>
-                            </div>
-                            <input type="number" step="0.1" id="belakangR" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
-                        </div>
-
-                        <!-- INPUT FASA S -->
-                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
-                            <div class="flex justify-between items-center">
-                                <label class="text-xs font-semibold text-amber-300">Ampere Fasa S (A)</label>
-                                <div class="grid grid-cols-4 gap-1">
-                                    <button type="button" onclick="setValue('belakangS', 10)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
-                                    <button type="button" onclick="setValue('belakangS', 25)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
-                                    <button type="button" onclick="setValue('belakangS', 75)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
-                                    <button type="button" onclick="setValue('belakangS', 90)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
-                                </div>
-                            </div>
-                            <input type="number" step="0.1" id="belakangS" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
-                        </div>
-
-                        <!-- INPUT FASA T -->
-                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
-                            <div class="flex justify-between items-center">
-                                <label class="text-xs font-semibold text-amber-300">Ampere Fasa T (A)</label>
-                                <div class="grid grid-cols-4 gap-1">
-                                    <button type="button" onclick="setValue('belakangT', 10)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
-                                    <button type="button" onclick="setValue('belakangT', 25)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
-                                    <button type="button" onclick="setValue('belakangT', 75)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
-                                    <button type="button" onclick="setValue('belakangT', 90)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
-                                </div>
-                            </div>
-                            <input type="number" step="0.1" id="belakangT" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
-                        </div>
-
-                        <!-- INPUT VOLTASE -->
-                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
-                            <div class="flex justify-between items-center">
-                                <label class="text-xs font-semibold text-cyan-300">Voltase (V)</label>
-                                <button type="button" onclick="setValue('belakangVolt', 220)" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 px-2.5 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">220V</button>
-                            </div>
-                            <input type="number" step="0.1" id="belakangVolt" placeholder="220" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
-                        </div>
-                    </div>
-
                 </div>
 
+                <!-- FORM INPUT AKTIF (DEPAN ATAU BELAKANG) -->
+                <div class="panel-card p-5 rounded-2xl space-y-5 shadow-xl">
+                    <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
+                        <h2 id="formPanelTitle" class="font-bold text-base sm:text-lg text-emerald-400 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> Entri Data: Panel Distribusi Depan
+                        </h2>
+                        <span id="formPanelBadge" class="text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-full font-medium">Panel 1</span>
+                    </div>
+
+                    <!-- FASA R -->
+                    <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800 space-y-2.5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <label class="text-xs font-semibold text-rose-400"><i class="fa-solid fa-circle-dot mr-1"></i> Ampere Fasa R (A)</label>
+                            <!-- Tombol Skala 10 - 100 -->
+                            <div class="grid grid-cols-5 gap-1.5">
+                                <button type="button" onclick="setFieldValue('activeR', 10)" class="bg-slate-800 hover:bg-slate-700 text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">10</button>
+                                <button type="button" onclick="setFieldValue('activeR', 25)" class="bg-slate-800 hover:bg-slate-700 text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">25</button>
+                                <button type="button" onclick="setFieldValue('activeR', 50)" class="bg-slate-800 hover:bg-slate-700 text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">50</button>
+                                <button type="button" onclick="setFieldValue('activeR', 75)" class="bg-slate-800 hover:bg-slate-700 text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">75</button>
+                                <button type="button" onclick="setFieldValue('activeR', 100)" class="bg-slate-800 hover:bg-slate-700 text-rose-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">100</button>
+                            </div>
+                        </div>
+                        <input type="number" step="0.1" id="activeR" placeholder="0.0" oninput="syncInputToPanel()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                    </div>
+
+                    <!-- FASA S -->
+                    <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800 space-y-2.5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <label class="text-xs font-semibold text-amber-400"><i class="fa-solid fa-circle-dot mr-1"></i> Ampere Fasa S (A)</label>
+                            <!-- Tombol Skala 10 - 100 -->
+                            <div class="grid grid-cols-5 gap-1.5">
+                                <button type="button" onclick="setFieldValue('activeS', 10)" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">10</button>
+                                <button type="button" onclick="setFieldValue('activeS', 25)" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">25</button>
+                                <button type="button" onclick="setFieldValue('activeS', 50)" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">50</button>
+                                <button type="button" onclick="setFieldValue('activeS', 75)" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">75</button>
+                                <button type="button" onclick="setFieldValue('activeS', 100)" class="bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">100</button>
+                            </div>
+                        </div>
+                        <input type="number" step="0.1" id="activeS" placeholder="0.0" oninput="syncInputToPanel()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                    </div>
+
+                    <!-- FASA T -->
+                    <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800 space-y-2.5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <label class="text-xs font-semibold text-sky-400"><i class="fa-solid fa-circle-dot mr-1"></i> Ampere Fasa T (A)</label>
+                            <!-- Tombol Skala 10 - 100 -->
+                            <div class="grid grid-cols-5 gap-1.5">
+                                <button type="button" onclick="setFieldValue('activeT', 10)" class="bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">10</button>
+                                <button type="button" onclick="setFieldValue('activeT', 25)" class="bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">25</button>
+                                <button type="button" onclick="setFieldValue('activeT', 50)" class="bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">50</button>
+                                <button type="button" onclick="setFieldValue('activeT', 75)" class="bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">75</button>
+                                <button type="button" onclick="setFieldValue('activeT', 100)" class="bg-slate-800 hover:bg-slate-700 text-sky-300 px-2 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">100</button>
+                            </div>
+                        </div>
+                        <input type="number" step="0.1" id="activeT" placeholder="0.0" oninput="syncInputToPanel()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                    </div>
+
+                    <!-- VOLTASE -->
+                    <div class="bg-slate-900/70 p-4 rounded-xl border border-slate-800 space-y-2.5">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-semibold text-cyan-300"><i class="fa-solid fa-bolt mr-1"></i> Voltase (V)</label>
+                            <button type="button" onclick="setFieldValue('activeVolt', 220)" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 px-3 py-1 rounded text-[11px] font-mono font-bold border border-slate-700 transition">220V</button>
+                        </div>
+                        <input type="number" step="0.1" id="activeVolt" placeholder="220" oninput="syncInputToPanel()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- TABEL RINGKASAN & KIRIM -->
                 <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-700/60 pb-3">
                         <h2 class="font-bold text-base sm:text-lg text-blue-400 flex items-center gap-2">
-                            <i class="fa-solid fa-table-list"></i> Kalkulasi & Ringkasan Hasil
+                            <i class="fa-solid fa-table-list"></i> Ringkasan & Kirim Data
                         </h2>
-                        <button onclick="saveToSheets()" id="btnSaveSheets" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-5 py-2.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/40">
+                        <button onclick="saveToSheets()" id="btnSaveSheets" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-5 py-3 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/40">
                             <i class="fa-solid fa-cloud-arrow-up text-sm"></i> Simpan Ke Database Google Sheets
                         </button>
                     </div>
@@ -233,17 +188,17 @@
                         <table class="w-full text-left text-sm">
                             <thead class="bg-slate-900/90 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
                                 <tr>
-                                    <th class="p-3">Kategori Panel</th>
-                                    <th class="p-3 text-center">R (Ampere)</th>
-                                    <th class="p-3 text-center">S (Ampere)</th>
-                                    <th class="p-3 text-center">T (Ampere)</th>
-                                    <th class="p-3 text-center">Rata-rata Ampere</th>
-                                    <th class="p-3 text-center">Voltase (V)</th>
+                                    <th class="p-3">Panel</th>
+                                    <th class="p-3 text-center">R</th>
+                                    <th class="p-3 text-center">S</th>
+                                    <th class="p-3 text-center">T</th>
+                                    <th class="p-3 text-center">Avg A</th>
+                                    <th class="p-3 text-center">Volt</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-800/60 font-mono text-slate-200">
                                 <tr>
-                                    <td class="p-3 font-sans font-semibold text-emerald-400">Panel Depan</td>
+                                    <td class="p-3 font-sans font-semibold text-emerald-400">Depan</td>
                                     <td id="tblDepanR" class="p-3 text-center">0.0</td>
                                     <td id="tblDepanS" class="p-3 text-center">0.0</td>
                                     <td id="tblDepanT" class="p-3 text-center">0.0</td>
@@ -251,20 +206,12 @@
                                     <td id="tblDepanVolt" class="p-3 text-center">0.0</td>
                                 </tr>
                                 <tr>
-                                    <td class="p-3 font-sans font-semibold text-amber-400">Panel Belakang</td>
+                                    <td class="p-3 font-sans font-semibold text-amber-400">Belakang</td>
                                     <td id="tblBelakangR" class="p-3 text-center">0.0</td>
                                     <td id="tblBelakangS" class="p-3 text-center">0.0</td>
                                     <td id="tblBelakangT" class="p-3 text-center">0.0</td>
                                     <td id="tblBelakangAvg" class="p-3 text-center font-bold text-slate-300">0.0</td>
                                     <td id="tblBelakangVolt" class="p-3 text-center">0.0</td>
-                                </tr>
-                                <tr class="bg-blue-950/40 font-bold border-t-2 border-slate-700">
-                                    <td class="p-3 font-sans text-blue-300">TOTAL / RATA2</td>
-                                    <td id="tblTotalR" class="p-3 text-center text-blue-300">0.0</td>
-                                    <td id="tblTotalS" class="p-3 text-center text-blue-300">0.0</td>
-                                    <td id="tblTotalT" class="p-3 text-center text-blue-300">0.0</td>
-                                    <td id="tblTotalAvg" class="p-3 text-center text-emerald-300">0.0</td>
-                                    <td id="tblTotalVolt" class="p-3 text-center text-blue-300">0.0</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -272,6 +219,7 @@
                 </div>
             </div>
 
+            <!-- REKAP HARIAN -->
             <div id="sectionHarian" class="space-y-6 hidden">
                 <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/60 pb-3">
@@ -289,7 +237,6 @@
                         </div>
                     </div>
 
-                    <!-- Daily Summary Stats -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
                             <span class="text-[10px] text-slate-400 uppercase font-semibold block">Total Entry Hari Ini</span>
@@ -330,6 +277,7 @@
                 </div>
             </div>
 
+            <!-- REKAP BULANAN -->
             <div id="sectionBulanan" class="space-y-6 hidden">
                 <div class="panel-card p-5 rounded-2xl space-y-4 shadow-xl">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/60 pb-3">
@@ -347,7 +295,6 @@
                         </div>
                     </div>
 
-                    <!-- Monthly Stats -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
                             <span class="text-[10px] text-slate-400 uppercase font-semibold block">Total Hari Tercatat</span>
@@ -393,7 +340,7 @@
     </div>
 
     <footer class="mt-12 border-t border-slate-800/80 py-6 text-center text-xs text-slate-500">
-        <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+        <div class="max-w-3xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
             <p class="font-medium text-slate-400">
                 <i class="fa-solid fa-school text-blue-400 mr-1.5"></i> SMK Negeri 1 Purbalingga
             </p>
@@ -403,29 +350,80 @@
         </div>
     </footer>
 
-    <div id="loadingOverlay" class="fixed inset-0 glass-modal z-50 flex justify-center items-center hidden flex-col gap-4">
-        <div class="spinner"></div>
-        <p id="loadingText" class="text-xs font-semibold text-slate-200">Memproses data...</p>
-    </div>
-
     <div id="toast" class="fixed bottom-5 right-5 bg-slate-900/95 text-slate-200 border border-slate-700/80 px-4 py-3 rounded-2xl shadow-2xl text-xs flex items-center gap-3 transition-all duration-300 transform translate-y-20 opacity-0 z-50">
         <i id="toastIcon" class="fa-solid fa-circle-info text-blue-400 text-base"></i>
         <span id="toastMsg">Pesan Notifikasi</span>
     </div>
 
     <script>
+        let currentPanel = 'depan'; // Default panel aktif: 'depan' atau 'belakang'
+        
+        // Memori data sementara untuk kedua panel sebelum disimpan
+        let panelData = {
+            depan: { R: 0, S: 0, T: 0, Volt: 220 },
+            belakang: { R: 0, S: 0, T: 0, Volt: 220 }
+        };
+
         let historyLogs = [];
 
-        // Fungsi Universal untuk Mengisi Input Field Individual (R, S, T, atau Volt)
-        function setValue(elementId, value) {
-            document.getElementById(elementId).value = value;
-            calculateTotals();
-            showToast(`${elementId.toUpperCase()} diset ke ${value}`, "success");
+        function selectPanel(panelKey) {
+            // Simpan data form aktif saat ini ke memori panel
+            saveCurrentFormToMemory();
+
+            currentPanel = panelKey;
+            
+            const btnDepan = document.getElementById('btnPanelDepan');
+            const btnBelakang = document.getElementById('btnPanelBelakang');
+            const title = document.getElementById('formPanelTitle');
+            const badge = document.getElementById('formPanelBadge');
+
+            if (panelKey === 'depan') {
+                btnDepan.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-emerald-500/40 bg-emerald-600/20 text-emerald-400 shadow-lg shadow-emerald-900/20";
+                btnBelakang.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-slate-700 bg-slate-800/60 text-slate-400";
+                title.innerHTML = '<i class="fa-solid fa-bolt"></i> Entri Data: Panel Distribusi Depan';
+                title.className = "font-bold text-base sm:text-lg text-emerald-400 flex items-center gap-2";
+                badge.innerText = "Panel 1";
+                badge.className = "text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-full font-medium";
+            } else {
+                btnBelakang.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-amber-500/40 bg-amber-600/20 text-amber-400 shadow-lg shadow-amber-900/20";
+                btnDepan.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-slate-700 bg-slate-800/60 text-slate-400";
+                title.innerHTML = '<i class="fa-solid fa-bolt"></i> Entri Data: Panel Distribusi Belakang';
+                title.className = "font-bold text-base sm:text-lg text-amber-400 flex items-center gap-2";
+                badge.innerText = "Panel 2";
+                badge.className = "text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium";
+            }
+
+            loadPanelToForm(panelKey);
+        }
+
+        function saveCurrentFormToMemory() {
+            panelData[currentPanel].R = parseFloat(document.getElementById('activeR').value) || 0;
+            panelData[currentPanel].S = parseFloat(document.getElementById('activeS').value) || 0;
+            panelData[currentPanel].T = parseFloat(document.getElementById('activeT').value) || 0;
+            panelData[currentPanel].Volt = parseFloat(document.getElementById('activeVolt').value) || 220;
+        }
+
+        function loadPanelToForm(panelKey) {
+            document.getElementById('activeR').value = panelData[panelKey].R || '';
+            document.getElementById('activeS').value = panelData[panelKey].S || '';
+            document.getElementById('activeT').value = panelData[panelKey].T || '';
+            document.getElementById('activeVolt').value = panelData[panelKey].Volt || 220;
+            calculateSummaryTables();
+        }
+
+        function setFieldValue(fieldId, value) {
+            document.getElementById(fieldId).value = value;
+            syncInputToPanel();
+            showToast(`Nilai diset ke ${value}`, "success");
+        }
+
+        function syncInputToPanel() {
+            saveCurrentFormToMemory();
+            calculateSummaryTables();
         }
 
         window.onload = function() {
-            calculateTotals();
-            
+            selectPanel('depan');
             const today = new Date().toISOString().split('T')[0];
             const currentMonth = today.substring(0, 7);
             
@@ -493,8 +491,77 @@
                         renderBulananView();
                     }
                 }
-            } catch(e) {
-                // Ignore fetch errors, fallback to local cache
+            } catch(e) {}
+        }
+
+        function calculateSummaryTables() {
+            const d = panelData.depan;
+            const b = panelData.belakang;
+
+            const dAvg = (d.R + d.S + d.T) / 3;
+            const bAvg = (b.R + b.S + b.T) / 3;
+
+            document.getElementById('tblDepanR').innerText = d.R.toFixed(1);
+            document.getElementById('tblDepanS').innerText = d.S.toFixed(1);
+            document.getElementById('tblDepanT').innerText = d.T.toFixed(1);
+            document.getElementById('tblDepanAvg').innerText = dAvg.toFixed(1);
+            document.getElementById('tblDepanVolt').innerText = d.Volt.toFixed(1);
+
+            document.getElementById('tblBelakangR').innerText = b.R.toFixed(1);
+            document.getElementById('tblBelakangS').innerText = b.S.toFixed(1);
+            document.getElementById('tblBelakangT').innerText = b.T.toFixed(1);
+            document.getElementById('tblBelakangAvg').innerText = bAvg.toFixed(1);
+            document.getElementById('tblBelakangVolt').innerText = b.Volt.toFixed(1);
+        }
+
+        async function saveToSheets() {
+            saveCurrentFormToMemory();
+
+            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("MASUKKAN_URL")) {
+                showToast("URL Google Apps Script belum diatur di dalam kode!", "error");
+                return;
+            }
+
+            const now = new Date();
+            const dateISO = now.toISOString().split('T')[0];
+
+            const d = panelData.depan;
+            const b = panelData.belakang;
+
+            const payload = {
+                timestamp: now.toLocaleString('id-ID'),
+                dateKey: dateISO,
+                depan: {
+                    R: d.R, S: d.S, T: d.T, Volt: d.Volt,
+                    Avg: (d.R + d.S + d.T) / 3
+                },
+                belakang: {
+                    R: b.R, S: b.S, T: b.T, Volt: b.Volt,
+                    Avg: (b.R + b.S + b.T) / 3
+                },
+                total: {
+                    R: d.R + b.R,
+                    S: d.S + b.S,
+                    T: d.T + b.T,
+                    Avg: ((d.R + d.S + d.T)/3) + ((b.R + b.S + b.T)/3),
+                    Volt: (d.Volt + b.Volt) / 2
+                }
+            };
+
+            saveLocalHistory(payload);
+
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                showToast("Data Panel Depan & Belakang berhasil dikirim ke Sheets!", "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Data tersimpan lokal, gagal koneksi ke Sheets", "error");
             }
         }
 
@@ -628,97 +695,6 @@
             document.getElementById('statBulanAvgAmp').innerText = (overallAmpSum / daysCount).toFixed(1) + " A";
             document.getElementById('statBulanPeakAmp').innerText = monthPeakAmp.toFixed(1) + " A";
             document.getElementById('statBulanVolt').innerText = (overallVoltSum / daysCount).toFixed(1) + " V";
-        }
-
-        async function saveToSheets() {
-            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("MASUKKAN_URL")) {
-                showToast("URL Google Apps Script belum diatur di dalam kode!", "error");
-                return;
-            }
-
-            const now = new Date();
-            const dateISO = now.toISOString().split('T')[0];
-
-            const payload = {
-                timestamp: now.toLocaleString('id-ID'),
-                dateKey: dateISO,
-                depan: {
-                    R: parseFloat(document.getElementById('depanR').value) || 0,
-                    S: parseFloat(document.getElementById('depanS').value) || 0,
-                    T: parseFloat(document.getElementById('depanT').value) || 0,
-                    Volt: parseFloat(document.getElementById('depanVolt').value) || 0,
-                    Avg: parseFloat(document.getElementById('tblDepanAvg').innerText) || 0
-                },
-                belakang: {
-                    R: parseFloat(document.getElementById('belakangR').value) || 0,
-                    S: parseFloat(document.getElementById('belakangS').value) || 0,
-                    T: parseFloat(document.getElementById('belakangT').value) || 0,
-                    Volt: parseFloat(document.getElementById('belakangVolt').value) || 0,
-                    Avg: parseFloat(document.getElementById('tblBelakangAvg').innerText) || 0
-                },
-                total: {
-                    R: parseFloat(document.getElementById('tblTotalR').innerText) || 0,
-                    S: parseFloat(document.getElementById('tblTotalS').innerText) || 0,
-                    T: parseFloat(document.getElementById('tblTotalT').innerText) || 0,
-                    Avg: parseFloat(document.getElementById('tblTotalAvg').innerText) || 0,
-                    Volt: parseFloat(document.getElementById('tblTotalVolt').innerText) || 0
-                }
-            };
-
-            saveLocalHistory(payload);
-
-            try {
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                showToast("Data berhasil dikirim ke Google Sheets!", "success");
-            } catch (err) {
-                console.error(err);
-                showToast("Data tersimpan lokal, gagal koneksi ke Sheets", "error");
-            }
-        }
-
-        function calculateTotals() {
-            const dR = parseFloat(document.getElementById('depanR').value) || 0;
-            const dS = parseFloat(document.getElementById('depanS').value) || 0;
-            const dT = parseFloat(document.getElementById('depanT').value) || 0;
-            const dVolt = parseFloat(document.getElementById('depanVolt').value) || 0;
-            const dAvg = (dR + dS + dT) / 3;
-
-            const bR = parseFloat(document.getElementById('belakangR').value) || 0;
-            const bS = parseFloat(document.getElementById('belakangS').value) || 0;
-            const bT = parseFloat(document.getElementById('belakangT').value) || 0;
-            const bVolt = parseFloat(document.getElementById('belakangVolt').value) || 0;
-            const bAvg = (bR + bS + bT) / 3;
-
-            document.getElementById('tblDepanR').innerText = dR.toFixed(1);
-            document.getElementById('tblDepanS').innerText = dS.toFixed(1);
-            document.getElementById('tblDepanT').innerText = dT.toFixed(1);
-            document.getElementById('tblDepanAvg').innerText = dAvg.toFixed(1);
-            document.getElementById('tblDepanVolt').innerText = dVolt.toFixed(1);
-
-            document.getElementById('tblBelakangR').innerText = bR.toFixed(1);
-            document.getElementById('tblBelakangS').innerText = bS.toFixed(1);
-            document.getElementById('tblBelakangT').innerText = bT.toFixed(1);
-            document.getElementById('tblBelakangAvg').innerText = bAvg.toFixed(1);
-            document.getElementById('tblBelakangVolt').innerText = bVolt.toFixed(1);
-
-            const totR = dR + bR;
-            const totS = dS + bS;
-            const totT = dT + bT;
-            const totAvg = dAvg + bAvg;
-            const avgVolt = (dVolt + bVolt) > 0 ? ((dVolt + bVolt) / (dVolt > 0 && bVolt > 0 ? 2 : 1)) : 0;
-
-            document.iga = 0; // dummy line safety
-            document.getElementById('tblTotalR').innerText = totR.toFixed(1);
-            document.getElementById('tblTotalS').innerText = totS.toFixed(1);
-            document.getElementById('tblTotalT').innerText = totT.toFixed(1);
-            document.getElementById('tblTotalAvg').innerText = totAvg.toFixed(1);
-            document.getElementById('tblTotalVolt').innerText = avgVolt.toFixed(1);
         }
 
         function showToast(msg, type = "info") {
