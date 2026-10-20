@@ -57,7 +57,7 @@
         // ==========================================
         // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
         // ==========================================
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGxEDY_Eq8QwuZ6pAeA4iNST9Vax5YhKoal0_gbvij3KPuP-c-roXwZmmAN5CiekWn/exec";
+        const APPS_SCRIPT_URL = "MASUKKAN_URL_WEB_APP_EXEC_ANDA_DISINI";
     </script>
 
     <div>
@@ -104,35 +104,55 @@
                             <span class="text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-full font-medium">Panel 1</span>
                         </div>
 
-                        <!-- Quick Select Buttons (10, 25, 75, 90) -->
-                        <div class="space-y-1.5">
-                            <label class="text-[11px] text-slate-400 block">Pilih Cepat / Shortcut Ampere R:</label>
-                            <div class="grid grid-cols-4 gap-2">
-                                <button type="button" onclick="setQuickValue('depanR', 10)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-emerald-400 border border-slate-700 rounded-lg py-1.5 text-xs font-mono font-bold transition">10</button>
-                                <button type="button" onclick="setQuickValue('depanR', 25)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-emerald-400 border border-slate-700 rounded-lg py-1.5 text-xs font-mono font-bold transition">25</button>
-                                <button type="button" onclick="setQuickValue('depanR', 75)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-emerald-400 border border-slate-700 rounded-lg py-1.5 text-xs font-mono font-bold transition">75</button>
-                                <button type="button" onclick="setQuickValue('depanR', 90)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-emerald-400 border border-slate-700 rounded-lg py-1.5 text-xs font-mono font-bold transition">90</button>
+                        <!-- INPUT FASA R -->
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-emerald-300">Ampere Fasa R (A)</label>
+                                <div class="grid grid-cols-4 gap-1">
+                                    <button type="button" onclick="setValue('depanR', 10)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
+                                    <button type="button" onclick="setValue('depanR', 25)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
+                                    <button type="button" onclick="setValue('depanR', 75)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
+                                    <button type="button" onclick="setValue('depanR', 90)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
+                                </div>
                             </div>
+                            <input type="number" step="0.1" id="depanR" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
                         </div>
 
-                        <!-- Manual Numeric Inputs -->
-                        <div class="grid grid-cols-2 gap-3 pt-1">
-                            <div>
-                                <label class="text-[11px] text-slate-400 block mb-1">Ampere R (A)</label>
-                                <input type="number" step="0.1" id="depanR" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                        <!-- INPUT FASA S -->
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-emerald-300">Ampere Fasa S (A)</label>
+                                <div class="grid grid-cols-4 gap-1">
+                                    <button type="button" onclick="setValue('depanS', 10)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
+                                    <button type="button" onclick="setValue('depanS', 25)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
+                                    <button type="button" onclick="setValue('depanS', 75)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
+                                    <button type="button" onclick="setValue('depanS', 90)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
+                                </div>
                             </div>
-                            <div>
-                                <label class="text-[11px] text-slate-400 block mb-1">Ampere S (A)</label>
-                                <input type="number" step="0.1" id="depanS" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            <input type="number" step="0.1" id="depanS" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                        </div>
+
+                        <!-- INPUT FASA T -->
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-emerald-300">Ampere Fasa T (A)</label>
+                                <div class="grid grid-cols-4 gap-1">
+                                    <button type="button" onclick="setValue('depanT', 10)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
+                                    <button type="button" onclick="setValue('depanT', 25)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
+                                    <button type="button" onclick="setValue('depanT', 75)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
+                                    <button type="button" onclick="setValue('depanT', 90)" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
+                                </div>
                             </div>
-                            <div>
-                                <label class="text-[11px] text-slate-400 block mb-1">Ampere T (A)</label>
-                                <input type="number" step="0.1" id="depanT" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            <input type="number" step="0.1" id="depanT" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                        </div>
+
+                        <!-- INPUT VOLTASE -->
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-cyan-300">Voltase (V)</label>
+                                <button type="button" onclick="setValue('depanVolt', 220)" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 px-2.5 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">220V</button>
                             </div>
-                            <div>
-                                <label class="text-[11px] text-slate-400 block mb-1">Voltase (V)</label>
-                                <input type="number" step="0.1" id="depanVolt" placeholder="220" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
-                            </div>
+                            <input type="number" step="0.1" id="depanVolt" placeholder="220" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
                         </div>
                     </div>
 
@@ -145,35 +165,55 @@
                             <span class="text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-full font-medium">Panel 2</span>
                         </div>
 
-                        <!-- Quick Select Buttons (10, 25, 75, 90) -->
-                        <div class="space-y-1.5">
-                            <label class="text-[11px] text-slate-400 block">Pilih Cepat / Shortcut Ampere R:</label>
-                            <div class="grid grid-cols-4 gap-2">
-                                <button type="button" onclick="setQuickValue('belakangR', 10)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 border border-slate-700 rounded-lg py-1.5 text-xs font-mono font-bold transition">10</button>
-                                <button type="button" onclick="setQuickValue('belakangR', 25)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 border border-slate-700 rounded-lg py-1.5 text-xs font-mono font-bold transition">25</button>
-                                <button type="button" onclick="setQuickValue('belakangR', 75)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 border border-slate-700 rounded-lg py-1.5 text-xs font-mono font-bold transition">75</button>
-                                <button type="button" onclick="setQuickValue('belakangR', 90)" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 border border-slate-700 rounded-lg py-1.5 text-xs font-mono font-bold transition">90</button>
+                        <!-- INPUT FASA R -->
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-amber-300">Ampere Fasa R (A)</label>
+                                <div class="grid grid-cols-4 gap-1">
+                                    <button type="button" onclick="setValue('belakangR', 10)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
+                                    <button type="button" onclick="setValue('belakangR', 25)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
+                                    <button type="button" onclick="setValue('belakangR', 75)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
+                                    <button type="button" onclick="setValue('belakangR', 90)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
+                                </div>
                             </div>
+                            <input type="number" step="0.1" id="belakangR" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
                         </div>
 
-                        <!-- Manual Numeric Inputs -->
-                        <div class="grid grid-cols-2 gap-3 pt-1">
-                            <div>
-                                <label class="text-[11px] text-slate-400 block mb-1">Ampere R (A)</label>
-                                <input type="number" step="0.1" id="belakangR" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                        <!-- INPUT FASA S -->
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-amber-300">Ampere Fasa S (A)</label>
+                                <div class="grid grid-cols-4 gap-1">
+                                    <button type="button" onclick="setValue('belakangS', 10)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
+                                    <button type="button" onclick="setValue('belakangS', 25)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
+                                    <button type="button" onclick="setValue('belakangS', 75)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
+                                    <button type="button" onclick="setValue('belakangS', 90)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
+                                </div>
                             </div>
-                            <div>
-                                <label class="text-[11px] text-slate-400 block mb-1">Ampere S (A)</label>
-                                <input type="number" step="0.1" id="belakangS" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            <input type="number" step="0.1" id="belakangS" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                        </div>
+
+                        <!-- INPUT FASA T -->
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-amber-300">Ampere Fasa T (A)</label>
+                                <div class="grid grid-cols-4 gap-1">
+                                    <button type="button" onclick="setValue('belakangT', 10)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">10</button>
+                                    <button type="button" onclick="setValue('belakangT', 25)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">25</button>
+                                    <button type="button" onclick="setValue('belakangT', 75)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">75</button>
+                                    <button type="button" onclick="setValue('belakangT', 90)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">90</button>
+                                </div>
                             </div>
-                            <div>
-                                <label class="text-[11px] text-slate-400 block mb-1">Ampere T (A)</label>
-                                <input type="number" step="0.1" id="belakangT" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                            <input type="number" step="0.1" id="belakangT" placeholder="0.0" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
+                        </div>
+
+                        <!-- INPUT VOLTASE -->
+                        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-cyan-300">Voltase (V)</label>
+                                <button type="button" onclick="setValue('belakangVolt', 220)" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 px-2.5 py-0.5 rounded text-[11px] font-mono font-bold border border-slate-700">220V</button>
                             </div>
-                            <div>
-                                <label class="text-[11px] text-slate-400 block mb-1">Voltase (V)</label>
-                                <input type="number" step="0.1" id="belakangVolt" placeholder="220" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2.5 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
-                            </div>
+                            <input type="number" step="0.1" id="belakangVolt" placeholder="220" oninput="calculateTotals()" class="w-full bg-slate-950/80 border border-slate-800 rounded-lg p-2 text-sm text-center font-mono focus:border-blue-500 focus:outline-none">
                         </div>
                     </div>
 
@@ -376,14 +416,11 @@
     <script>
         let historyLogs = [];
 
-        // Fungsi Shortcut Tombol Cepat (10, 25, 75, 90)
-        function setQuickValue(elementId, value) {
-            const inputField = document.getElementById(elementId);
-            if (inputField) {
-                inputField.value = value;
-                calculateTotals();
-                showToast(`Nilai ${value} diset ke ${elementId.toUpperCase()}`, "success");
-            }
+        // Fungsi Universal untuk Mengisi Input Field Individual (R, S, T, atau Volt)
+        function setValue(elementId, value) {
+            document.getElementById(elementId).value = value;
+            calculateTotals();
+            showToast(`${elementId.toUpperCase()} diset ke ${value}`, "success");
         }
 
         window.onload = function() {
@@ -676,6 +713,7 @@
             const totAvg = dAvg + bAvg;
             const avgVolt = (dVolt + bVolt) > 0 ? ((dVolt + bVolt) / (dVolt > 0 && bVolt > 0 ? 2 : 1)) : 0;
 
+            document.iga = 0; // dummy line safety
             document.getElementById('tblTotalR').innerText = totR.toFixed(1);
             document.getElementById('tblTotalS').innerText = totS.toFixed(1);
             document.getElementById('tblTotalT').innerText = totT.toFixed(1);
