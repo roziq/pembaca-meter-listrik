@@ -67,7 +67,7 @@
         // ==========================================
         // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
         // ==========================================
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGxEDY_Eq8QwuZ6pAeA4iNST9Vax5YhKoal0_gbvij3KPuP-c-roXwZmmAN5CiekWn/exec";
+        const APPS_SCRIPT_URL = typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : "https://script.google.com/macros/s/AKfycbzGxEDY_Eq8QwuZ6pAeA4iNST9Vax5YhKoal0_gbvij3KPuP-c-roXwZmmAN5CiekWn/exec";
     </script>
 
     <div>
@@ -138,7 +138,7 @@
                         <input type="text" id="inputPetugas" onchange="savePetugasName(this.value)" placeholder="Masukkan nama petugas..." class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-slate-800 dark:text-slate-200 focus:border-blue-500 focus:outline-none">
                     </div>
 
-                    <!-- WARNING UNBALANCE ALERT (HIDDEN DEFAULT) -->
+                    <!-- WARNING UNBALANCE ALERT -->
                     <div id="unbalanceAlert" class="hidden bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2.5">
                         <i class="fa-solid fa-triangle-exclamation text-base shrink-0"></i>
                         <span><strong>Peringatan Beban Tidak Seimbang!</strong> Selisih arus antar-fase melebihi 25%. Harap periksa kondisi pembebanan.</span>
@@ -198,9 +198,10 @@
                         <input type="number" step="0.1" id="inputVolt" placeholder="220" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
                     </div>
 
-                    <!-- TOMBOL SIMPAN -->
-                    <button onclick="saveToSheets()" id="btnSave" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/20">
-                        <i class="fa-solid fa-cloud-arrow-up text-base"></i> Simpan Data Panel
+                    <!-- TOMBOL SIMPAN (PROTEKSI DISABLE / ANTI DOUBLE-SUBMIT) -->
+                    <button onclick="saveToSheets()" id="btnSave" class="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/20">
+                        <i id="btnSaveIcon" class="fa-solid fa-cloud-arrow-up text-base"></i> 
+                        <span id="btnSaveText">Simpan Data Panel</span>
                     </button>
                 </div>
             </div>
@@ -325,7 +326,6 @@
         let bulananSubTab = 'gabungan';
         let historyLogs = [];
 
-        // 1. AUTO-REMEMBER NAMA PETUGAS
         function loadSavedPetugas() {
             const savedPetugas = localStorage.getItem('last_petugas_name');
             if (savedPetugas) {
@@ -339,7 +339,6 @@
             }
         }
 
-        // 2. UNBALANCE WARNING CHECKER
         function checkUnbalance() {
             const r = parseFloat(document.getElementById('inputR').value) || 0;
             const s = parseFloat(document.getElementById('inputS').value) || 0;
@@ -351,7 +350,6 @@
                 const maxVal = Math.max(r, s, t);
                 const minVal = Math.min(r, s, t);
                 
-                // Jika selisih min-max > 25% dari nilai tertinggi
                 if (maxVal > 0 && ((maxVal - minVal) / maxVal) > 0.25) {
                     alertBox.classList.remove('hidden');
                     return;
@@ -360,7 +358,6 @@
             alertBox.classList.add('hidden');
         }
 
-        // 3. EXPORT TO CSV FUNCTION
         function exportToCSV(type) {
             let csvContent = "data:text/csv;charset=utf-8,";
             let fileName = `Rekap_Panel_SMKN1Purbalingga_${type}_${new Date().toISOString().split('T')[0]}.csv`;
@@ -373,7 +370,6 @@
                 });
             } else {
                 csvContent += "Tanggal,Panel,Rata-rata R,Rata-rata S,Rata-rata T,Total Avg Ampere\n";
-                // Render CSV Bulanan dari historyLogs
                 historyLogs.forEach(item => {
                     csvContent += `"${item.dateKey || ''}","${item.panelType || ''}",${item.R || 0},${item.S || 0},${item.T || 0},${(item.Avg || 0).toFixed(1)}\n`;
                 });
@@ -424,17 +420,16 @@
                 title.innerHTML = '<i class="fa-solid fa-bolt"></i> Entri Data: Panel Depan';
                 badge.innerText = "Panel 1";
                 badge.className = "text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 rounded-full font-medium";
-                btnSave.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/20";
+                btnSave.className = "w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/20";
             } else {
                 btnBelakang.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-amber-500/40 bg-amber-600/20 text-amber-600 dark:text-amber-400 shadow-lg shadow-amber-900/10";
                 btnDepan.className = "py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400";
                 title.innerHTML = '<i class="fa-solid fa-bolt"></i> Entri Data: Panel Belakang';
                 badge.innerText = "Panel 2";
                 badge.className = "text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-2.5 py-0.5 rounded-full font-medium";
-                btnSave.className = "w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-amber-900/20";
+                btnSave.className = "w-full bg-amber-600 hover:bg-amber-500 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-amber-900/20";
             }
             
-            // Reset input form saat ganti panel
             document.getElementById('inputR').value = '';
             document.getElementById('inputS').value = '';
             document.getElementById('inputT').value = '';
@@ -528,7 +523,7 @@
         }
 
         async function fetchDataFromSheets() {
-            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("MASUKKAN_URL")) return;
+            if (!APPS_SCRIPT_URL) return;
 
             try {
                 const res = await fetch(APPS_SCRIPT_URL + "?action=get");
@@ -560,10 +555,14 @@
             const volt = parseFloat(document.getElementById('inputVolt').value) || 220;
             const avg = (r + s + t) / 3;
 
-            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("MASUKKAN_URL")) {
-                showToast("URL Google Apps Script belum diatur!", "error");
-                return;
-            }
+            // PROTEKSI DISABLE TOMBOL
+            const btnSave = document.getElementById('btnSave');
+            const btnSaveIcon = document.getElementById('btnSaveIcon');
+            const btnSaveText = document.getElementById('btnSaveText');
+
+            btnSave.disabled = true;
+            btnSaveIcon.className = "fa-solid fa-spinner fa-spin text-base";
+            btnSaveText.innerText = "Mengirim Data...";
 
             const now = new Date();
             const dateISO = now.toISOString().split('T')[0];
@@ -579,12 +578,14 @@
             saveLocalHistory(payload);
 
             try {
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                if (APPS_SCRIPT_URL) {
+                    await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                }
 
                 showToast(`Data Panel ${currentPanel.toUpperCase()} berhasil disimpan!`, "success");
                 
@@ -599,6 +600,11 @@
             } catch (err) {
                 console.error(err);
                 showToast("Tersimpan lokal, gagal koneksi ke Sheets", "error");
+            } finally {
+                // KEMBALIKAN FUNGSI TOMBOL
+                btnSave.disabled = false;
+                btnSaveIcon.className = "fa-solid fa-cloud-arrow-up text-base";
+                btnSaveText.innerText = "Simpan Data Panel";
             }
         }
 
@@ -660,8 +666,8 @@
                 let matchMonth = log.timestamp.includes(selectedMonth) || (log.dateKey && log.dateKey.startsWith(selectedMonth));
                 if (!matchMonth) return false;
 
-                if (bulananSubTab === 'depan') return log.panelType === 'depan';
-                if (bulananSubTab === 'belakang') return log.panelType === 'belakang';
+                if (bulananSubTab === 'depan') return log.panelType !== 'depan';
+                if (bulananSubTab === 'belakang') return log.panelType !== 'belakang';
                 return true;
             });
 
