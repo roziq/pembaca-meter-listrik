@@ -198,7 +198,7 @@
                         <input type="number" step="0.1" id="inputVolt" placeholder="220" class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3 text-sm text-center font-mono text-slate-800 dark:text-slate-100 focus:border-blue-500 focus:outline-none">
                     </div>
 
-                    <!-- TOMBOL SIMPAN (PROTEKSI DISABLE / ANTI DOUBLE-SUBMIT) -->
+                    <!-- TOMBOL SIMPAN -->
                     <button onclick="saveToSheets()" id="btnSave" class="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-900/20">
                         <i id="btnSaveIcon" class="fa-solid fa-cloud-arrow-up text-base"></i> 
                         <span id="btnSaveText">Simpan Data Panel</span>
@@ -608,21 +608,38 @@
             }
         }
 
+        // FUNGSI RENDER HARIAN DENGAN LOGIKA NORMALISASI TANGGAL TANGGUH
         function renderHarianView() {
-            const selectedDate = document.getElementById('filterDate').value;
+            const selectedDate = document.getElementById('filterDate').value; // Format: YYYY-MM-DD
             const tbody = document.getElementById('tblHarianBody');
             
+            // Saring berdasarkan Sub-Tab Panel (Gabungan, Panel Depan, Panel Belakang)
             let filtered = historyLogs.filter(log => {
                 if (harianSubTab === 'depan' && log.panelType !== 'depan') return false;
                 if (harianSubTab === 'belakang' && log.panelType !== 'belakang') return false;
                 return true;
             });
 
+            // Saring berdasarkan tanggal dengan normalisasi format YYYY-MM-DD & DD/MM/YYYY
             if (selectedDate) {
+                const parts = selectedDate.split('-'); // [YYYY, MM, DD]
+                const dateAlt = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : selectedDate; // DD/MM/YYYY
+                const dateDash = parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : selectedDate; // DD-MM-YYYY
+
                 let dateFiltered = filtered.filter(log => {
-                    if (!log.timestamp) return false;
-                    return log.timestamp.includes(selectedDate) || log.dateKey === selectedDate;
+                    if (!log.timestamp && !log.dateKey) return true;
+                    
+                    const logDateKey = log.dateKey || '';
+                    const logTimestamp = log.timestamp || '';
+
+                    return logDateKey === selectedDate || 
+                           logDateKey === dateAlt || 
+                           logTimestamp.includes(selectedDate) || 
+                           logTimestamp.includes(dateAlt) || 
+                           logTimestamp.includes(dateDash);
                 });
+
+                // Jika pencocokan tanggal memunculkan data, gunakan data terfilter
                 if (dateFiltered.length > 0) {
                     filtered = dateFiltered;
                 }
@@ -662,12 +679,22 @@
             const tbody = document.getElementById('tblBulananBody');
 
             let monthLogs = historyLogs.filter(log => {
-                if (!log.timestamp) return false;
-                let matchMonth = log.timestamp.includes(selectedMonth) || (log.dateKey && log.dateKey.startsWith(selectedMonth));
+                if (!log.timestamp && !log.dateKey) return true;
+                
+                const logDateKey = log.dateKey || '';
+                const logTimestamp = log.timestamp || '';
+
+                let matchMonth = logTimestamp.includes(selectedMonth) || logDateKey.startsWith(selectedMonth);
+                
+                if (!matchMonth && selectedMonth.includes('-')) {
+                    const [yyyy, mm] = selectedMonth.split('-');
+                    matchMonth = logTimestamp.includes(`/${mm}/${yyyy}`) || logTimestamp.includes(`-${mm}-${yyyy}`);
+                }
+
                 if (!matchMonth) return false;
 
-                if (bulananSubTab === 'depan') return log.panelType !== 'depan';
-                if (bulananSubTab === 'belakang') return log.panelType !== 'belakang';
+                if (bulananSubTab === 'depan') return log.panelType === 'depan';
+                if (bulananSubTab === 'belakang') return log.panelType === 'belakang';
                 return true;
             });
 
