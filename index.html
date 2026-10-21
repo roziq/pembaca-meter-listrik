@@ -608,19 +608,18 @@
             }
         }
 
-        // FUNGSI RENDER HARIAN DENGAN LOGIKA NORMALISASI TANGGAL TANGGUH
+        // RENDER HARIAN
         function renderHarianView() {
             const selectedDate = document.getElementById('filterDate').value; // Format: YYYY-MM-DD
             const tbody = document.getElementById('tblHarianBody');
             
-            // Saring berdasarkan Sub-Tab Panel (Gabungan, Panel Depan, Panel Belakang)
+            // Saring berdasarkan Sub-Tab Panel
             let filtered = historyLogs.filter(log => {
                 if (harianSubTab === 'depan' && log.panelType !== 'depan') return false;
                 if (harianSubTab === 'belakang' && log.panelType !== 'belakang') return false;
                 return true;
             });
 
-            // Saring berdasarkan tanggal dengan normalisasi format YYYY-MM-DD & DD/MM/YYYY
             if (selectedDate) {
                 const parts = selectedDate.split('-'); // [YYYY, MM, DD]
                 const dateAlt = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : selectedDate; // DD/MM/YYYY
@@ -639,7 +638,6 @@
                            logTimestamp.includes(dateDash);
                 });
 
-                // Jika pencocokan tanggal memunculkan data, gunakan data terfilter
                 if (dateFiltered.length > 0) {
                     filtered = dateFiltered;
                 }
@@ -674,28 +672,34 @@
             tbody.innerHTML = html;
         }
 
+        // RENDER BULANAN DENGAN LOGIKA PENYARINGAN SUB-TAB & FORMAT TANGGAL YANG DIPERBAIKI
         function renderBulananView() {
-            const selectedMonth = document.getElementById('filterMonth').value;
+            const selectedMonth = document.getElementById('filterMonth').value; // Format: YYYY-MM
             const tbody = document.getElementById('tblBulananBody');
 
             let monthLogs = historyLogs.filter(log => {
+                // 1. Filter Sub-Tab Panel
+                if (bulananSubTab === 'depan' && log.panelType !== 'depan') return false;
+                if (bulananSubTab === 'belakang' && log.panelType !== 'belakang') return false;
+
+                // 2. Filter Bulan
+                if (!selectedMonth) return true;
                 if (!log.timestamp && !log.dateKey) return true;
-                
+
                 const logDateKey = log.dateKey || '';
                 const logTimestamp = log.timestamp || '';
 
-                let matchMonth = logTimestamp.includes(selectedMonth) || logDateKey.startsWith(selectedMonth);
+                let matchMonth = logDateKey.startsWith(selectedMonth) || logTimestamp.includes(selectedMonth);
                 
                 if (!matchMonth && selectedMonth.includes('-')) {
-                    const [yyyy, mm] = selectedMonth.split('-');
-                    matchMonth = logTimestamp.includes(`/${mm}/${yyyy}`) || logTimestamp.includes(`-${mm}-${yyyy}`);
+                    const [yyyy, mm] = selectedMonth.split('-'); // [2026, 10]
+                    matchMonth = logTimestamp.includes(`/${mm}/${yyyy}`) || 
+                                 logTimestamp.includes(`-${mm}-${yyyy}`) ||
+                                 logTimestamp.includes(`${mm}/${yyyy}`) ||
+                                 logTimestamp.includes(`${yyyy}-${mm}`);
                 }
 
-                if (!matchMonth) return false;
-
-                if (bulananSubTab === 'depan') return log.panelType === 'depan';
-                if (bulananSubTab === 'belakang') return log.panelType === 'belakang';
-                return true;
+                return matchMonth;
             });
 
             if (monthLogs.length === 0) {
